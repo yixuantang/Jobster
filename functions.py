@@ -1,5 +1,6 @@
 import mysql.connector
 import hashlib, uuid
+from datetime import datetime
 #connection
 cnx = mysql.connector.connect(user='root', passwd='root',
                               host='localhost',port='3306',db='love',autocommit=True)
@@ -144,9 +145,9 @@ def _listfriends(sid):
 
 
 #application
-def _sendapplication(aid, sid, timestamp, contacttype):
+def _sendapplication(aid, sid, contacttype):
     try:
-        cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, timestamp, contacttype))
+        cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, datetime.now(), contacttype))
         cur.execute("COMMIT;")
         return True
     finally:
@@ -163,19 +164,44 @@ def _postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
 
 
 def _read_notification(aid, sid):
-    pass
+    try:
+        cur.execute("UPDATE Notification SET nstatus = '1' WHERE aid = %s AND sid = %s;", (aid, sid))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        return False
 
 def _follow_com(cid, sid):
-    pass
+    try:
+        cur.execute("INSERT IGNORE INTO Follower (cid, sid, time) VALUES (%s, %s, %s);", (aid, cid, timestamp))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        return False
 
 def _send_friend_request(sid_send, sid_receive):
-    pass
+    try:
+        cur.execute("INSERT IGNORE INTO Request (sid,Friendid,status) VALUES (%s,%s,%s);", (sid_send, sid_receive, 0))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        return False
 
 def _accept_friend_request(sid_receive, sid_send):
-    pass
+    try:
+        cur.execute("UPDATE Request SET nstatus = '1' WHERE aid = %s AND sid = %s;", (aid, sid))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        return False
 
 def _reject_friend_request(sid_receive, sid_send):
-    pass
+    try:
+        cur.execute( "DELETE FROM Request WHERE sid = %s AND Friendid = %s;", (sid_send, sid_receive))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        return False
 
 
 def _search_results(query):
