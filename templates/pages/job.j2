@@ -12,6 +12,10 @@
     <h4><b>Jobs Requirement:</b> {{ job.bk }}</h4>
     <ul class='actions'>
     	<li><a href="{{ url_for('apply', aid=job.aid) }}" class="button">Apply</a></li>
+    	<li>
+			<a href="{{ url_for('apply', aid=job.aid, contact_by='phone') }}" class='button action by-phone'>Apply (phone)</a>
+			<a href="{{ url_for('apply', aid=job.aid, contact_by='email') }}" class='button action by-email'>Apply (email)</a>
+		</li>
     </ul>
 
 {% endblock %}

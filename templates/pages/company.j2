@@ -13,12 +13,12 @@
 <ul class="actions">
 	{% block actions %}
 
-	
 	{% if current_user.username == company.cname %}
 		<li><a class='button' href="{{ url_for('post_job', user=company.cid) }}">Post New Job</a></li>
-	{% else %}
+	{% elif current_user.type == 'student' %}
 		<li><a class='button action follow-com' href="{{ url_for('follow', user=company.cid) }}" data-success='Followed!'>Follow</a></li>
 	{% endif %}
+	
 	{% endblock %}
 </ul>
 
