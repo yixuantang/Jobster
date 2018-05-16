@@ -115,18 +115,13 @@ def _studentinfo(sid, sname, loginname, phone, email, university, major, GPA, in
 
 
 def updateprofile(phone,email,sid):
-    cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;", (phone,email,sid),multi=True)
+    cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;", (phone, email, sid), multi=True)
     cnx.commit()
 
 def _listfollowers_user(sid):
     try:
         cur.execute("select f.cid, c.cname from company c join Follower f join Student s where c.cid = f.cid and f.sid = s.sid and s.sid = %s;", (sid,))
-        # followers = pd.DataFrame(cursor.fetchall())
-        followers = cur.fetchall()
-        print(followers)
-        # followers.columns = cursor.column_names
-        return(followers)
-
+        return(cur.fetchall())
     finally:
         pass
 
@@ -143,8 +138,7 @@ def _listfriends(sid):
         cur.execute("""select student.loginname, student.sname 
             from (select sid, Friendid from Request where status = 'accepted' and (sid = %s OR Friendid = %s)) as a, 
                 student where student.sid != %s and (a.Friendid = student.sid or  a.sid = student.sid);""", (sid, sid, sid))
-        friends = cur.fetchall()
-        return(friends)
+        return(cur.fetchall())
     finally:
         pass
 
@@ -154,15 +148,34 @@ def _sendapplication(aid, sid, timestamp, contacttype):
     try:
         cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, timestamp, contacttype))
         cur.execute("COMMIT;")
+        return True
     finally:
-        pass
+        return False
 
 def _postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
     try:
         cur.execute( "INSERT INTO position (aid, cid, joblocation,title,salary,bk,description,pdate) VALUES (%s,%s, %s, %s,%s, %s, %s, %s);", (aid, cid, joblocation, title, salary, bk, description, timestamp))
         cur.execute("COMMIT;")
+        return True
     finally:
-        pass
+        return False
+
+
+
+def _read_notification(aid, sid):
+    pass
+
+def _follow_com(cid, sid):
+    pass
+
+def _send_friend_request(sid_send, sid_receive):
+    pass
+
+def _accept_friend_request(sid_receive, sid_send):
+    pass
+
+def _reject_friend_request(sid_receive, sid_send):
+    pass
 
 
 def _search_results(query):
