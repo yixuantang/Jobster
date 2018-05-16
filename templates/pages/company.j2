@@ -10,13 +10,17 @@
 <h2>{{ company.cname}} <small>({{company.industry}})</small></h2>
 <p>{{ company.location }}</p>
 
-{# <ul class="actions">
+<ul class="actions">
 	{% block actions %}
-	<li><a href='/follower/{{company.cid}}' class='button alt'>Followers</a></li>
-	<li><a href='/jobs/{{company.cid}}' class='button alt'>Jobs</a></li>
-	<li><a href="{{url_for('post_job', user=company.cid)}}">Post New Job</a></li>
+
+	
+	{% if current_user.username == company.cname %}
+		<li><a class='button' href="{{ url_for('post_job', user=company.cid) }}">Post New Job</a></li>
+	{% else %}
+		<li><a class='button action follow-com' href="{{ url_for('follow', user=company.cid) }}" data-success='Followed!'>Follow</a></li>
+	{% endif %}
 	{% endblock %}
-</ul> #}
+</ul>
 
 
 {% block followers %}

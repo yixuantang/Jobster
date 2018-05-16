@@ -78,7 +78,7 @@ def student_edit(user):
     student_data = _student(user) # get info for a student
     following = _listfollowers_user(user)
     friends = _listfriends(user)
-    return render_template('pages/student_edit.j2', user=student_data, following=following, friends=friends)
+    return render_template('pages/update_profile.j2', user=student_data, following=following, friends=friends)
 
 
 @app.route('/company/<user>')
@@ -86,10 +86,7 @@ def company(user):
     company_data =_com(user)
     followers = _listfollowers_company(user)
     jobs = _jobs(user)
-    if current_user.id == user: # can show personalized homepage
-        return render_template('pages/company.j2', company=company_data)
-    else:
-        return render_template('pages/company_public.j2', company=company_data, followers=followers, jobs=jobs)
+    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs)
 
 
 @app.route('/job/<aid>')
