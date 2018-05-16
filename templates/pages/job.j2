@@ -1,0 +1,17 @@
+
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+{# removes banner #}
+
+{% block content %}
+
+    <h2><i class='idno'>{{ job.aid }}</i> {{ job.title }} - {{ job.cname }}</h2>
+    <h3>${{ job.salary }} - <b>location:</b> {{ job.joblocation }} </h3>
+    <h4><b>Jobs Requirement:</b> {{ job.bk }}</h4>
+    <ul class='actions'>
+    	<li><a href="{{ url_for('apply', aid=job.aid) }}" class="button">Apply</a></li>
+    </ul>
+
+{% endblock %}

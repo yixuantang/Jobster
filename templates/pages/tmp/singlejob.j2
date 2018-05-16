@@ -1,0 +1,18 @@
+
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+{# removes banner #}
+
+{% block content %}
+<h2>{{ jobs.title[0] }} - {{ jobs.cname[0] }}</h2>
+<h3>{{ jobs.salary[0] }} $ - Location: {{ jobs.joblocation[0] }}</h3>
+<h4>Jobs Requirment: {{ jobs.bk[0] }}</h4>
+
+    aaa
+<li><a href="{{ url_for('logout') }}" class="button">Logout</a></li>
+
+{#{% for job in company.jobs %}#}
+{#	<p>{{ job.name }}</p>#}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'layouts/form.j2' %}
+
+{% block header %}
+	<h2>Apply</h2>
+	<p>Show us that ambition :D</p>
+{% endblock %}
+
+{% block form %}
+
+<form method="post" action="#">
+    {{ form.hidden_tag() }}
+	<div class="row uniform 50%">
+		<div class="12u">
+			{{ form.email_phone(placeholder='Your phone/email') }}
+		</div>
+	</div>
+	<div class="row uniform">
+		<div class="12u">
+			<ul class="actions align-center">
+				{{ form.submit() }}
+			</ul>
+		</div>
+	</div>
+</form>
+
+{% endblock %}
+

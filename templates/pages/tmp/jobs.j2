@@ -1,0 +1,14 @@
+
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+{# removes banner #}
+
+{% block content %}
+
+    {%  for job in jobs %}
+    <h2>{{ job.aid }} {{ job.title }} - {{ job.cname }} <a href="/thejob/{{job.aid}}">Details</a></h2>
+    {%  endfor %}
+
+{% endblock %}

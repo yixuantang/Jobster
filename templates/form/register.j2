@@ -1,0 +1,42 @@
+{% extends 'layouts/form.j2' %}
+
+{% block header %}
+	<h2>Register</h2>
+	<p>Welcome to Jobster!</p>
+{% endblock %}
+
+{% block form %}
+
+<form method="post" action="#">
+    {{ form.hidden_tag() }}
+	<div class="row uniform 50%">
+		{% for subfield in form.act_type %}
+		<div class='6u'>{{ subfield }} {{ subfield.label }}</div>
+		{% endfor %}
+	</div>
+	<div class="row uniform 50%">
+		<div class="12u">
+			{{ form.name(placeholder='Your name') }}
+		</div>
+	</div>
+	<div class="row uniform 50%">
+		<div class="12u">
+			{{ form.username(placeholder='Your username') }}
+		</div>
+	</div>
+	<div class="row uniform 50%">
+		<div class="12u">
+			{{ form.password(placeholder='Your password') }}
+		</div>
+	</div>
+	<div class="row uniform">
+		<div class="12u">
+			<ul class="actions align-center">
+				{{ form.submit() }}
+			</ul>
+		</div>
+	</div>
+</form>
+
+{% endblock %}
+

@@ -1,0 +1,27 @@
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+
+{% block content %}
+	
+    <ul>
+    {% for n in notifs %}
+    	<section class="box notification {{ 'unread' if not n.nstatus }}">
+    		<a class='action mark-read' href="{{ url_for('mark_read', nid=n.nid) }}"></a>
+    		<h3><a href="{{ url_for('job', aid=n.aid, sid=n.sid) }}">{{ n.title }}</a></h3>
+			<p><b>Salary:</b> {{ n.salary }}</p>
+			<p><b>Date:</b> {{ n.ndate.strftime('%m/%d/%Y %H:%M:%S') }}</p>
+			<p><b>Location:</b> {{ n.joblocation }}</p>
+    	</section>
+	{% else %}
+		<section class='box'>
+			<h3>No notifications</h3>
+			<p>You'll get some soon enough!</p>
+		</section>
+    {% endfor %}
+    </ul>
+
+{#<h4>{{ Notis.title[0] }}<li><a href="/Notification/{{user.sid[0]}}">Notification</a></li></h4>#}
+
+{% endblock %}

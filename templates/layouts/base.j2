@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<!--
+	Alpha by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Jobster</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		{# For icons! #}
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/solid.css" integrity="sha384-Rw5qeepMFvJVEZdSo1nDQD5B6wX0m7c5Z/pLNvjkB14W6Yki1hKbSEQaX9ffUbWe" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/fontawesome.css" integrity="sha384-GVa9GOgVQgOk+TNYXu7S/InPTfSDTtBalSgkgqQ7sCik56N9ztlkoTr2f/T44oKV" crossorigin="anonymous">
+
+
+		<!--[if lte IE 8]><script src="{{ url_for('static', filename='js/ie/html5shiv.js') }}"></script><![endif]-->
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="{{ url_for('static', filename='css/ie8.css') }}" /><![endif]-->
+	</head>
+	<body class="{% block body_class %}{% endblock %}">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<h1><a href="{{ url_for('index') }}">Jobster</a></h1>
+					<nav id="nav">
+						<ul>
+							<li>
+								<form action="{{ url_for('search') }}" id="search">
+									{{ search_form.query(placeholder="Search (The Job you want / The people you look for)") }}
+									<i class="fas fa-search"></i>
+									{{ search_form.hidden_tag() }}
+								</form>
+							</li>
+							{# <li><a href="{{ url_for('jobs') }}">Jobs</a></li> #}
+							{# <li><a href="{{ url_for('companies') }}">Companies</a></li>
+							<li><a href="{{ url_for('students') }}">Students</a></li> #}
+                            {% if current_user.is_authenticated %}
+                                <li><a href="{{ url_for(current_user.type, user=current_user.username) }}">Hi {{ current_user.name }}</a></li>
+                                <li><a href="{{ url_for('notifications') }}">
+                                	<i class="fas fa-bell notif {{ 'notif-badge' if notifications|length }}"></i></a></li>
+                                <li><a href="{{ url_for('logout') }}" class="button">Logout</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('login') }}" class="button">Login</a></li>
+                                <li><a href="{{ url_for('register') }}" class="button">Sign Up</a></li>
+                            {% endif %}
+
+						</ul>
+					</nav>
+				</header>
+
+{# 
+            <div id="sidebar">
+						<div class="inner">
+							<!-- Search -->
+								<section id="search" class="alt">
+									
+								</section>
+                        </div>
+            </div> #}
+			<!-- Banner -->
+				{% block banner %}
+				<section id="banner">
+					{% block banner_content %}{% endblock %}
+				</section>
+				{% endblock %}
+
+			<!-- Main -->
+			{% block main %}
+				<section id="main" class="container">
+					{% block content %}{% endblock %}
+				</section>
+			{% endblock %}
+				
+
+
+			<!-- Footer -->
+				<footer id="footer">
+					{% block footer %}{% endblock %}
+					<ul class="copyright">
+						<li>&copy; Isha Chaturvedi &amp; Yixuan Tang. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/jquery.dropotron.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/jquery.scrollgress.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/skel.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+			<!--[if lte IE 8]><script src="{{ url_for('static', filename='js/ie/respond.min.js') }}"></script><![endif]-->
+			<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+			<script src="{{ url_for('static', filename='custom.js') }}"></script>
+			{% block scripts %}{% endblock %}
+
+	</body>
+</html>

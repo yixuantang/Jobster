@@ -1,0 +1,49 @@
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+
+{% block content %}
+{# Put user info here #}
+{#<li><a href="/Notification/{{user.sid}}">Notifications ({{ user.notif|len }})</a></li>#}
+<h2>{{ user.sname }}</h2>
+
+<h3>{{ user.major }} - {{ user.university }} - GPA: {{ user.GPA }}</h3>
+    Contact:
+<h3>{{ user.phone }} - {{ user.email }}</h3>
+    Interests:
+<h4>{{ user.interests }} </h4>
+
+{% if user.resume %}
+	<a title="Download Resume" class='button special' download="resume.pdf" href="data:application/pdf;base64,{{ user.Resume }}">Download Resume</a>
+{% else %}
+{#	<p>No Resume</p>#}
+{% endif %}
+{#<a href="/updateprofile/{{user.sid}}">UpdatePage</a></li>#}
+
+
+{% block following %}
+<section class='box'>
+	<h3>Following</h3>
+	<ul>
+	{% for follower in followers %}
+		<li><a href="{{ url_for('student_profile', user=follower.uid) }}">{{ follower.name }}</a> - {{ follower.school }}</li>
+	{% endfor %}
+	</ul>
+</section>
+{% endblock %}
+
+
+{% block friends %}
+<section class='box'>
+	<h3>Friends</h3>
+	<ul>
+	{% for friend in friends %}
+		<li>{{ friend.name }} - {{ friend.school }}</li>
+		<li><a href="{{ url_for('student_profile', user=friend.uid) }}">{{ friend.name }}</a> - {{ friend.school }}</li>
+	{% endfor %}
+	</ul>
+</section>
+{% endblock %}
+
+{% endblock %}

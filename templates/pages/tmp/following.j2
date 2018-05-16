@@ -1,0 +1,14 @@
+
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+
+
+{% block content %}
+
+{%  for user in user %}
+    <h2><a href="/company/{{user.cname}}">{{ user.cname }}</a></h2>
+{%  endfor %}
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'layouts/base.j2' %}
+
+{% block banner %}{% endblock %}
+
+{% block content %}
+<section class="box special">
+	<header class="major">
+		{% block header %}
+			<h2>{{ error_code }} {{ title }}</h2>
+			<p>{{ message }}</p>
+		{% endblock %}
+	</header>
+</section>
+{% endblock %}

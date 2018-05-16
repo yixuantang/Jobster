@@ -1,0 +1,117 @@
+/*https://upload.wikimedia.org/wikipedia/commons/0/0b/KreeftbijDenOsse.jpg*/
+#page-wrapper #banner {
+	background-image: url(https://www.maxpixel.net/static/photo/1x/Canada-Icon-Lobster-Shediac-New-Brunswick-2358898.jpg) !important;
+	background: no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+.idno {
+	font-size: 0.5em;
+}
+
+
+#search input {
+	background: #444;
+	border-color: #666;
+	display: inline-block;
+	box-shadow: none;
+	padding-left: 2em;
+	width: 3em;
+	max-width: 100%;
+	transition: width 0.4s ease-in-out,
+				color 0.4s ease-in-out;
+}
+
+#search input:focus {
+	width: 30em;
+	color: #fff;
+}
+
+
+#search i {
+	position: relative;
+	left: -2.3em;
+	pointer-events: none;
+	transition: color 0.4s ease-in-out;
+}
+
+#search input:focus + i {
+	color: #666;
+}
+
+
+/* notification menu icon */
+
+.notif {
+	position: relative;
+}
+
+.notif.notif-badge:after {
+	content: '';
+	position: absolute;
+	width: 0.4em;
+	height: 0.4em;
+	border-radius: 100%;
+	background: red;
+	top: 0;
+	right: 0;
+}
+
+/**/
+
+.notification {
+	position: relative;
+}
+
+.notification p {
+	margin: 0;
+}
+
+/* Red dot on unread notifications */
+.notification.unread:after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translate(-60%, -50%);
+	width: 1em;
+	height: 1em;
+	border-radius: 100%;
+	background: red;
+	opacity: 0.6;
+	transition: opacity 0.4s ease-in-out;
+}
+
+.notification.unread:hover:after {
+	opacity: 1;
+}
+
+/* Mark as read label */
+.notification.unread:before {
+	content: 'Mark as read.';
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #e5e5e5;
+	color: #999;
+	padding: 0.1em 0.4em;
+	transition: transform 0.4s ease-in-out,
+				opacity 0.4s ease-in-out;
+	z-index: -1;
+	opacity: 0;
+
+}
+
+.notification.unread:hover:before {
+	transform: translate(0, -100%);
+	z-index: 100;
+	opacity: 1;
+}
+
+
+
+
+

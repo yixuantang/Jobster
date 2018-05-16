@@ -1,0 +1,36 @@
+{% extends 'layouts/base.j2' %}
+
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+
+
+{% block content %}
+
+<section class='box'>
+	<h2>Search Jobster</h2>
+	<form action="{{ url_for('search') }}">
+		{{ search_form.query(placeholder='Search (The Job you want / The people you look for)') }}
+		{{ search_form.hidden_tag() }}
+	</form>
+</section>
+
+{% for result in search_results %}
+	<section class='box'>
+		{% if result.type == 'student' %}
+			<h2>{{ result.sname }}</h2>
+			<h4>{{ result.university }}</h4>
+		{% elif result.type == 'company' %}
+			<h2>{{ result.cname }}</h2>
+			<h4>{{ result.university }}</h4>
+		{% elif result.type == 'job' %}
+			<h2>{{ result.title }}</h2>
+			<h4>{{ result.university }}</h4>
+		{% endif %}
+	</section>
+{% else %}
+	<section class='box'>
+		<h2>No results for "{{ search_form.query.data or '' }}".</h2>
+	</section>
+{% endfor %}
+{% endblock %}

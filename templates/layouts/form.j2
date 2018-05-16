@@ -1,0 +1,21 @@
+{% extends 'layouts/base.j2' %}
+
+
+{% block banner %}{% endblock %}
+
+
+{% block main %}
+<section id="main" class="container 75%">
+	<header>
+		{% block header %}{% endblock %}
+		{% for field, errors in form.errors.items() %}
+			<div class="alert alert-error">
+			<b>{{ form[field].label }}:</b> {{ ', '.join(errors) }}
+			</div>
+		{% endfor %}
+	</header>
+	<div class="box">
+		{% block form %}{% endblock %}
+	</div>
+</section>
+{% endblock %}

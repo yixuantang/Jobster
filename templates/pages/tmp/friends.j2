@@ -1,0 +1,15 @@
+
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+{# removes banner #}
+
+{% block content %}
+
+
+    {%  for user in user %}
+    <h2><a href="/student/{{user.loginname}}">{{ user.sname}}</a></h2>
+    {%  endfor %}
+
+{% endblock %}

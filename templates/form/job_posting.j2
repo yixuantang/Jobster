@@ -1,0 +1,30 @@
+{% extends 'layouts/form.j2' %}
+
+{% block header %}
+	<h2>Post New {{ user.sname }} Job</h2>
+	<p> :D </p>
+{% endblock %}
+
+{% block form %}
+<h2>{{ user.sname }}</h2>
+<form method="post" action="#">
+    {{ form.hidden_tag() }}
+	<div class="row uniform 50%">
+		<div class="12u">
+			{{ form.title(placeholder='Title') }}
+            {{ form.salary(placeholder='Salary') }}
+            {{ form.joblocation(placeholder='Job location') }}
+            {{ form.bk(placeholder='Background requirement') }}
+		</div>
+	</div>
+	<div class="row uniform">
+		<div class="12u">
+			<ul class="actions align-center">
+				{{ form.submit() }}
+			</ul>
+		</div>
+	</div>
+</form>
+
+{% endblock %}
+
