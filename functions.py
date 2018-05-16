@@ -113,13 +113,6 @@ def _studentinfo(sid, sname, loginname, phone, email, university, major, GPA, in
     finally:
         pass
 
-# def updateprofile(phone,email,loginname):
-#     cursor = cnx.cursor()
-#     try:
-#         cursor.execute("set sql_safe_updates= 0; UPDATE Student set phone = %s, email = %s where loginname = %s;"%(phone,email,loginname))
-#         cursor.execute("COMMIT;")
-#     finally:
-#         cursor.close()
 
 def updateprofile(phone,email,sid):
     cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;", (phone,email,sid),multi=True)
@@ -145,18 +138,6 @@ def hash_password(password):
 
 
 #list friends
-# def _listfriends(sid):
-#     cursor = cnx.cursor(dictionary = True)
-#     try:
-#         #cursor.execute("select student.sname from(select sid, Friendid from Request where status = %s and"%('accepted')+ "(sid = %s OR Friendid = %s)"%(sid,sid)+")as a, student where student.sid != %s and"%(sid)+ "(a.Friendid = student.sid or  a.sid = student.sid);"%(sid,sid))
-#         cursor.execute("select s.loginname, s.sname from Request r join Student s on r.Friendid = s.sid where r.status = %s and (r.sid= %s or r.Friendid = %s);",('accepted', sid ,sid))
-#         friends = cursor.fetchall()
-#         print(friends)
-#         print(sid)
-#         return(friends)
-#     finally:
-#         cursor.close()
-
 def _listfriends(sid):
     try:
         cur.execute("""select student.loginname, student.sname 
@@ -169,20 +150,19 @@ def _listfriends(sid):
 
 
 #application
-def _sendapplication(aid, sid, atime, contacttype, astatus):
+def _sendapplication(aid, sid, timestamp, contacttype):
     try:
-        cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype, astatus) VALUES (%s, %s, %s, %s, %s);", (aid, sid, atime, contacttype, astatus))
-        cur.execute("COMMIT;")
-    finally:
-        pass
-#post jobs
-def _postjobs(aid,cid,joblocation,title,salary,bk,description,pdate):
-    try:
-        cur.execute("INSERT INTO position(aid, cid, joblocation, title, salary, bk, description, pdate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);",(aid, cid, joblocation, title, salary, bk, description, pdate))
+        cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, timestamp, contacttype))
         cur.execute("COMMIT;")
     finally:
         pass
 
+def _postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
+    try:
+        cur.execute( "INSERT INTO position (aid, cid, joblocation,title,salary,bk,description,pdate) VALUES (%s,%s, %s, %s,%s, %s, %s, %s);", (aid, cid, joblocation, title, salary, bk, description, timestamp))
+        cur.execute("COMMIT;")
+    finally:
+        pass
 
 
 def _search_results(query):
