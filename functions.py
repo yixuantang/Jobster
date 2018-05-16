@@ -13,31 +13,31 @@ functions
 """
 
 #Com page
-def _com(cname):
+def com(cname):
     cur.execute("select * from company where cname = %s;", (cname,))
     return(cur.fetchone())
 
-def _com_from_id(cid):
+def com_from_id(cid):
     cur.execute("select * from company where cid = %s;", (cid,))
     return(cur.fetchone())
 
 #df student
-def _student(loginname):
+def stud(loginname):
     cur.execute("select * from student where loginname = %s;", (loginname,))
     return(cur.fetchone())
 
-def _student_from_id(sid):
+def student_from_id(sid):
     cur.execute("select * from student where sid = %s;", (sid,))
     return(cur.fetchone())
 
 #follower
-# def _listfollowers_company(x):
+# def listfollowers_company(x):
 #     cur.execute("select s.sname, f.sid from follower f join student s where f.sid = s.sid and cid = '"+x+ "';")
 #     followers = cur.fetchall()
 #     for f in followers:
 #         print(f)
 
-def _listfollowers_company(cid):
+def listfollowers_company(cid):
     try:
         cur.execute(
             "select s.loginname, s.sname, f.sid from Follower f join Student s where f.sid = s.sid and cid = %s;", (cid,))
@@ -46,7 +46,7 @@ def _listfollowers_company(cid):
         pass
 
 #jobs #df
-def _jobs(cid):
+def jobs(cid):
     cur.execute("select distinct p.*,cname from position p join company c on p.cid = c.cid where p.cid = %s", (cid,))
     return(cur.fetchall())
 
@@ -56,31 +56,31 @@ def student_profile(user):
 	return student_data
 
 #veri passwd
-def _veristudentpassword(loginname, passwd):
+def veristudentpassword(loginname, passwd):
     cur.execute("select * from student where loginname = %s and password = %s", (loginname, passwd))
     return(cur.fetchone())
 
-def _vericompanypassword(loginname, passwd):
+def vericompanypassword(loginname, passwd):
     cur.execute("select * from company where cname = %s and password = %s", (loginname, passwd))
     return(cur.fetchone())
 
 #register
-# def _studentregister(sname, password, loginname):
+# def studentregister(sname, password, loginname):
 #     cur.execute("INSERT INTO Student(sname, password, loginname) VALUES (%s, %s, %s);",(sname, password, loginname))
 #     cur.execute("COMMIT;")
 
 #Notis
-def _Notifications(sid):
+def add_notification(sid):
     cur.execute("select p.*, n.sid, n.ndate, n.nstatus from Notification n join position p on n.aid = p.aid where sid = %s;", (sid,))
     return(cur.fetchall())
 
 #details of job
-def _selectjob(aid):
+def selectjob(aid):
     cur.execute("select p.*, c.cname from company c join position p where c.cid = p.cid and aid = %s;", (aid,))
     return(cur.fetchone())
 
 #regis student
-def _studentregister(sname, password, loginname):
+def studentregister(sname, password, loginname):
     try:
         salt = uuid.uuid4().hex
         hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
@@ -90,7 +90,7 @@ def _studentregister(sname, password, loginname):
     finally:
         pass
 #regis com
-def _companyregister(username, password, cname):
+def companyregister(username, password, cname):
     try:
         salt = uuid.uuid4().hex
         hashed_password = hashlib.sha512(password + salt).hexdigest()
@@ -101,7 +101,7 @@ def _companyregister(username, password, cname):
         pass
 
 #update profile
-def _studentinfo(sid, sname, loginname, phone, email, university, major, GPA, interests, qualifications, privacysetting, Resume):
+def studentinfo(sid, sname, loginname, phone, email, university, major, GPA, interests, qualifications, privacysetting, Resume):
     try:
         # salt = uuid.uuid4().hex
         # hashed_password = hashlib.sha512(password + salt).hexdigest()
@@ -119,7 +119,7 @@ def updateprofile(phone,email,sid):
     cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;", (phone, email, sid), multi=True)
     cnx.commit()
 
-def _listfollowers_user(sid):
+def listfollowers_user(sid):
     try:
         cur.execute("select f.cid, c.cname from company c join Follower f join Student s where c.cid = f.cid and f.sid = s.sid and s.sid = %s;", (sid,))
         return(cur.fetchall())
@@ -134,7 +134,7 @@ def hash_password(password):
 
 
 #list friends
-def _listfriends(sid):
+def listfriends(sid):
     try:
         cur.execute("""select student.loginname, student.sname 
             from (select sid, Friendid from Request where status = 'accepted' and (sid = %s OR Friendid = %s)) as a, 
@@ -145,7 +145,7 @@ def _listfriends(sid):
 
 
 #application
-def _sendapplication(aid, sid, contacttype):
+def sendapplication(aid, sid, contacttype):
     try:
         cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, datetime.now(), contacttype))
         cur.execute("COMMIT;")
@@ -153,7 +153,7 @@ def _sendapplication(aid, sid, contacttype):
     finally:
         return False
 
-def _postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
+def postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
     try:
         cur.execute( "INSERT INTO position (aid, cid, joblocation,title,salary,bk,description,pdate) VALUES (%s,%s, %s, %s,%s, %s, %s, %s);", (aid, cid, joblocation, title, salary, bk, description, timestamp))
         cur.execute("COMMIT;")
@@ -163,7 +163,7 @@ def _postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
 
 
 
-def _read_notification(aid, sid):
+def read_notification(aid, sid):
     try:
         cur.execute("UPDATE Notification SET nstatus = '1' WHERE aid = %s AND sid = %s;", (aid, sid))
         cur.execute("COMMIT;")
@@ -171,7 +171,7 @@ def _read_notification(aid, sid):
     finally:
         return False
 
-def _follow_com(cid, sid):
+def follow_com(cid, sid):
     try:
         cur.execute("INSERT IGNORE INTO Follower (cid, sid, time) VALUES (%s, %s, %s);", (aid, cid, timestamp))
         cur.execute("COMMIT;")
@@ -179,7 +179,7 @@ def _follow_com(cid, sid):
     finally:
         return False
 
-def _send_friend_request(sid_send, sid_receive):
+def send_friend_request(sid_send, sid_receive):
     try:
         cur.execute("INSERT IGNORE INTO Request (sid,Friendid,status) VALUES (%s,%s,%s);", (sid_send, sid_receive, 0))
         cur.execute("COMMIT;")
@@ -187,7 +187,7 @@ def _send_friend_request(sid_send, sid_receive):
     finally:
         return False
 
-def _accept_friend_request(sid_receive, sid_send):
+def accept_friend_request(sid_receive, sid_send):
     try:
         cur.execute("UPDATE Request SET nstatus = '1' WHERE aid = %s AND sid = %s;", (aid, sid))
         cur.execute("COMMIT;")
@@ -195,7 +195,7 @@ def _accept_friend_request(sid_receive, sid_send):
     finally:
         return False
 
-def _reject_friend_request(sid_receive, sid_send):
+def reject_friend_request(sid_receive, sid_send):
     try:
         cur.execute( "DELETE FROM Request WHERE sid = %s AND Friendid = %s;", (sid_send, sid_receive))
         cur.execute("COMMIT;")
@@ -204,7 +204,7 @@ def _reject_friend_request(sid_receive, sid_send):
         return False
 
 
-def _search_results(query):
+def search_results(query):
 #     cur.execute("""SELECT * from (
 #   SELECT 
 #     'student' as type, loginname as slug, sname as name, university, major, (MATCH(content) AGAINST (@target)) as relevance
