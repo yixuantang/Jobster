@@ -74,9 +74,9 @@
 .notification.unread:after {
 	content: '';
 	position: absolute;
-	top: 50%;
-	left: 0;
-	transform: translate(-60%, -50%);
+	top: 0;
+	right: 0;
+	transform: translate(60%, -50%);
 	width: 1em;
 	height: 1em;
 	border-radius: 100%;

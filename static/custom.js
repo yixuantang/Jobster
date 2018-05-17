@@ -115,19 +115,23 @@ $(document).ready(function(){
 	})
 
 	// get new nessages every 10 seconds
-	// setTimeout(function(){
-	// 	getNewMessages();
-	// }, 10000)
+	// if($('.messages').length) {
+		// setTimeout(function(){
+		// 	getNewMessages();
+		// }, 10000)
+	// }
+	
 
 	// keep messages scrolled to bottom
 	function keepAtBottom() {
-		if(stick) 
-			$('.messages .double-wrap').scrollTop($('.double-wrap')[0].scrollHeight);
+		var el = $('.messages .double-wrap')
+		if(stick && el.length) 
+			el.scrollTop(el[0].scrollHeight);
 	}
 
 	// 
 	var stick = true;
-	keepAtBottom()
+	keepAtBottom();
 	$('.messages .double-wrap').on('scroll', function(){
 		stick = $('.messages .double-wrap').scrollTop() + $('.messages .double-wrap').height() > $('.messages .message-wrap').height() - 10;
 
