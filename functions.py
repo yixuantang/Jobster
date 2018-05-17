@@ -147,11 +147,13 @@ def listfriends(sid):
 #application
 def sendapplication(aid, sid, contacttype):
     try:
-        cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, datetime.now(), contacttype))
+        cur.execute( """INSERT INTO Application(aid, sid, atime, contacttype, astatus) VALUES (%s, %s, %s, %s, %s)
+                            ON DUPLICATE KEY UPDATE contacttype = %s;""", (aid, sid, datetime.now(), contacttype, 'pending', contacttype))
         cur.execute("COMMIT;")
         return True
     finally:
-        return False
+        pass
+    return False
 
 def postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
     try:
@@ -159,7 +161,8 @@ def postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
         cur.execute("COMMIT;")
         return True
     finally:
-        return False
+        pass
+    return False
 
 
 
@@ -169,7 +172,8 @@ def read_notification(aid, sid):
         cur.execute("COMMIT;")
         return True
     finally:
-        return False
+        pass
+    return False
 
 def follow_com(cid, sid):
     try:
@@ -177,7 +181,8 @@ def follow_com(cid, sid):
         cur.execute("COMMIT;")
         return True
     finally:
-        return False
+        pass
+    return False
 
 def send_friend_request(sid_send, sid_receive):
     try:
@@ -185,7 +190,8 @@ def send_friend_request(sid_send, sid_receive):
         cur.execute("COMMIT;")
         return True
     finally:
-        return False
+        pass
+    return False
 
 def accept_friend_request(sid_receive, sid_send):
     try:
@@ -193,7 +199,8 @@ def accept_friend_request(sid_receive, sid_send):
         cur.execute("COMMIT;")
         return True
     finally:
-        return False
+        pass
+    return False
 
 def reject_friend_request(sid_receive, sid_send):
     try:

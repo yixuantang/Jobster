@@ -27,7 +27,7 @@ class RegistrationForm(FlaskForm):
 	submit = SubmitField("Register")
 
 class ApplicationForm(FlaskForm):
-	email_phone = StringField("Email/Phone")
+	email_phone = SelectField("Contact via", choices=[('email', 'Email'), ('phone', 'Phone')])
 	submit = SubmitField("Apply")
 
 class UpdateForm(FlaskForm):

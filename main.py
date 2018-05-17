@@ -83,10 +83,13 @@ def company(user):
     return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs)
 
 
-@app.route('/job/<aid>')
-def job(aid=None):
+@app.route('/job/<aid>', methods=['GET', 'POST'])
+def job(aid):
     thejob_data = selectjob(aid)
-    return render_template('pages/job.j2', job=thejob_data, aid=aid)
+    form = ApplicationForm(request.form)
+    if request.method == 'POST' and form.validate() and current_user.is_authenticated:
+        status = sendapplication(aid, current_user.id, form.email_phone.data)
+    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form)
 
 
 @app.route('/notifications')
@@ -165,7 +168,7 @@ def friend_request(user):
 @app.route('/apply/<aid>/<contact_by>', methods=['POST'])
 @login_required
 def apply(aid, contact_by):
-    status = sendapplication(aid, current_user.sid, contact_by)
+    status = sendapplication(aid, current_user.id, contact_by)
     return jsonify({
         'success': status
     })
@@ -217,14 +220,6 @@ def register():
     return render_template('form/register.j2', form=form)
 
 
-
-# @app.route('/apply/<aid>', methods=['GET', 'POST'])
-# @login_required
-# def apply(aid):
-#     form = ApplicationForm(request.form)
-#     if request.method == 'POST' and form.validate():
-#         pass #_sendapplication(form.email_phone, current_user,now())
-#     return render_template('form/apply.j2', form=form)
 
 
 @app.route('/student/<user>/update', methods=['GET', 'POST'])
