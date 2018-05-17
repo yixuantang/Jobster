@@ -1,9 +1,10 @@
 
 $('.notification.unread').on('click', function(){
+	var $this = $(this);
 	$.post($(this).find('.action.mark-read').attr('href'), function(data){
 		// success!
 		console.log(data);
-		$(this).removeClass('unread');
+		$this.removeClass('unread');
 	})
 	
 	return false;

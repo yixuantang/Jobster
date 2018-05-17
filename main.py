@@ -92,7 +92,7 @@ def job(aid=None):
 @app.route('/notifications')
 @login_required
 def notifications():
-    Noti_data = add_notifications(current_user.id)
+    Noti_data = add_notification(current_user.id)
     return render_template('pages/notification.j2', notifs=Noti_data, user=current_user)
 
 
@@ -191,7 +191,7 @@ def login():
                 return redirect(url_for('company', user=user.username))
             elif user.type == 'student':
                 login_user(user, remember=form.remember.data)
-                return redirect(url_for('student_home', user=user.username))
+                return redirect(url_for('student', user=user.username))
     return render_template('form/login.j2', form=form)
 
 
@@ -213,7 +213,7 @@ def register():
             if user:
                 login_user(user)
                 print('logged in user', user.username)
-                return redirect(url_for('student_home', user=user.username))
+                return redirect(url_for('student', user=user.username))
     return render_template('form/register.j2', form=form)
 
 
