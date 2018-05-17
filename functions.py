@@ -6,8 +6,8 @@ from datetime import datetime
 generate_id = lambda prefix: '{}{}'.format(prefix, int(time.time()) % 10000)
 
 #connection
-cnx = mysql.connector.connect(user='root', passwd='new_password',
-                              host='localhost',port='3306',db='love1',autocommit=True)
+cnx = mysql.connector.connect(user='root', passwd='root',
+                              host='localhost',port='3306',db='love',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
 cur = cnx.cursor(dictionary=True)
@@ -325,6 +325,46 @@ def reject_friend_request(sid_receive, sid_send):
         return True
     finally:
         return False
+
+
+
+
+
+
+def sendmessage(sid1, sid2, mtext, mdate):
+    try:
+        cur.execute( "INSERT INTO Message(sid1, sid2, mtext, mdate) VALUES (%s, %s, %s, %s);",(sid1, sid2, mtext, mdate))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        pass
+    return False
+
+def markreadmessage(sid1, sid2, mdate, mstatus=1):
+    try:
+        cur.execute( "set sql_safe_updates = 0; UPDATE Message set mstatus = %s where mdate = %s and sid1 = %s, sid2 = %s;",(mstatus, mdate, sid1, sid2))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        pass
+    return False
+
+def getmessages(sid1, sid2):
+    cur.execute( """select * from Message where 
+        (sid1 = %s and sid2 = %s) or (sid1 = %s and sid2 = %s)
+        order by mdate asc;""",(sid1, sid2, sid2, sid1))
+    return(cur.fetchall())
+
+def getnewmessages(sid1, sid2, mdate):
+    cur.execute( """select * from Message where 
+        sid1 = %s and sid2 = %s and mdate >= %s
+        order by mdate asc;""",(sid1, sid2, mdate))
+    return(cur.fetchall())
+
+
+
+
+
 
 
 def search_results(query):

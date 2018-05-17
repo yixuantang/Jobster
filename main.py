@@ -75,28 +75,15 @@ def student(user):
     student_data =  stud(user) # get info for a student
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
-<<<<<<< HEAD
     applications = listapplications(student_data['sid'])
     print(applications)
     print(student_data)
     print(student_data['sid'])
     print(friends)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications)
-=======
-
-    # messages = [
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='Hi', mdate=datetime.now() - timedelta(minutes=25), mstatus=1),
-    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='Hello', mdate=datetime.now() - timedelta(minutes=20), mstatus=1),
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='yo', mdate=datetime.now() - timedelta(minutes=15), mstatus=1),
-    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext="you're beautiful", mdate=datetime.now() - timedelta(minutes=10), mstatus=1),
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='thanks man', mdate=datetime.now() - timedelta(minutes=5), mstatus=1),
-    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='poop', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='lol', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
-    # ]
     messages = getmessages(current_user.id, student_data['sid'])
     print(messages)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, messages=messages, title=student_data['sname'])
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications, messages=messages, title=student_data['sname'])
+
 
 
 @app.route('/company/<user>')
@@ -108,13 +95,8 @@ def company(user):
     print(company_data['cname'])
     print('123')
     print(user)
-<<<<<<< HEAD
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com = applications_com)
-=======
-    print(current_user.username)
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, title=company_data['cname'])
+    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com=applications_com, title=company_data['cname'])
 
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
@@ -123,13 +105,9 @@ def job(aid):
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
         sendapplication(aid, current_user.id, form.email_phone.data)
-<<<<<<< HEAD
         return redirect(url_for('student', user=current_user.username))
     return render_template('pages/job.j2', job=job_data, aid=aid, form=form, title=job_data['title'])
-=======
-        return redirect(url_for('student_edit', user=current_user.username))
-    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form, title=job_data['title'])
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
+
 
 
 @app.route('/notifications')
@@ -248,10 +226,6 @@ def login():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-<<<<<<< HEAD
-        #user = User.from_form(form)
-=======
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
         if form.act_type.data == 'company':
             companyregister(form.name.data, form.password.data, form.username.data)
             user = User.from_form(form)
@@ -266,36 +240,13 @@ def register():
                 login_user(user)
                 print('logged in user', user.username)
                 return redirect(url_for('student', user=user.username))
-<<<<<<< HEAD
     return render_template('form/register.j2', form=form, title = 'Register')
 
 
-# @app.route('/student/<user>/update', methods=['GET', 'POST'])
-# @login_required
-# def student_update(user):
-#      # get info for a student
-#     form = UpdateForm(request.form)
-#     student_data = stud(user)
-#     if request.method == 'POST' and form.validate():
-#         print(current_user)
-#         print('122')
-#         updateprofile(form.phone.data, form.email.data, current_user)
-#         print(form.phone.data)
-#         print(form.email.data)
-#         print('123')
-#     return render_template('form/student_update.j2', form=form, user=student_data)
 
-@app.route('/updateprofile/<user>', methods=['GET', 'POST'])
-=======
-    return render_template('form/register.j2', form=form, title='Register')
-
-
-
-
-@app.route('/student/<user>/edit', methods=['GET', 'POST'])
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
+@app.route('/student/<user>/updateprofile', methods=['GET', 'POST'])
 @login_required
-def student_update(user):
+def student_edit(user):
     form = UpdateForm(request.form)
     student_data = stud(user) #use loginname
     print(current_user.id)
@@ -304,16 +255,11 @@ def student_update(user):
         updateprofile(form.phone.data, form.email.data, current_user.id)
         print(current_user.id)
         print(form.email.data)
-<<<<<<< HEAD
-    return render_template('form/student_update.j2', form=form, user=student_data)
-=======
-        print('123')
-    return render_template('form/Updateprofile.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
+    return render_template('form/student_update.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
 
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 #func: updateprofile_com
-@app.route('/updateprofile_com/<user>', methods=['GET', 'POST'])
+@app.route('/company/<user>/updateprofile', methods=['GET', 'POST'])
 @login_required
 def company_edit(user):
     form = UpdateForm_com(request.form)
@@ -375,17 +321,7 @@ def not_found_error(error):
 
 
 
-# def postjob():
-#     form = PostJob(request.form)
-#     # company_data = com_from_id(user) # get info for a student
-#     if request.method == 'POST' and form.validate():
-#         print(current_user)
-#         print('122')
-#         postjobs(form.phone.data, form.email.data, current_user)
-#         print(form.phone.data)
-#         print(form.email.data)
-#         print('123')
-#     return render_template('form/Updateprofile.j2', form=form, user=company_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
