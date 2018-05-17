@@ -6,8 +6,8 @@ from datetime import datetime
 generate_id = lambda prefix: '{}{}'.format(prefix, int(time.time()) % 10000)
 
 #connection
-cnx = mysql.connector.connect(user='root', passwd='new_password',
-                              host='localhost',port='3306',db='love1',autocommit=True)
+cnx = mysql.connector.connect(user='root', passwd='root',
+                              host='localhost',port='3306',db='love',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 # cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
 cur = cnx.cursor(dictionary=True)

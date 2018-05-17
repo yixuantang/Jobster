@@ -15,7 +15,7 @@
 	{% endif %}
 
 	{% if current_user.username == user.loginname %}
-		<li><a class='button edit-profile' href="{{ url_for('student_update', user=user.loginname) }}">Edit Profile</a></li>
+		<li><a class='button edit-profile' href="{{ url_for('student_edit', user=user.loginname) }}">Edit Profile</a></li>
 	{% elif current_user.type == 'student' %}
 		<li><a class='button action friend-request' href="{{ url_for('friend_request', user=user.loginname) }}" 
 				data-success="Request Sent!">Friend Request</a></li>

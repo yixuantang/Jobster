@@ -177,34 +177,22 @@ def login():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-        user = User.from_form(form)
         if form.act_type.data == 'company':
             companyregister(form.name.data, form.password.data, form.username.data)
+            user = User.from_form(form)
             if user:
                 login_user(user)
                 print('logged in company', user.username)
                 return redirect(url_for('company', user=user.username))
         elif form.act_type.data == 'student':
             studentregister(form.name.data, form.password.data, form.username.data)
-            # user = User.from_form(form)
+            user = User.from_form(form)
             if user:
                 login_user(user)
                 print('logged in user', user.username)
                 return redirect(url_for('student', user=user.username))
     return render_template('form/register.j2', form=form, title='Register')
 
-
-
-@app.route('/apply/<aid>', methods=['GET', 'POST'])
-def apply(aid=None):
-    thejob_data = _selectjob(aid)
-    form = ApplicationForm(request.form)
-    if request.method == 'POST' and form.validate():
-        #user = User.from_form(form)
-        _sendapplication(aid, current_user.id,timestamp,form.email_phone.data)
-        return redirect(url_for('student_edit', user=current_user.username))
-        #pass #_sendapplication(form.email_phone, current_user,now())
-    return render_template('form/apply.j2', form=form, job = thejob_data, aid = aid)
 
 
 
