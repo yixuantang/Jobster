@@ -72,9 +72,13 @@ from datetime import datetime, timedelta
 
 @app.route('/student/<user>')
 def student(user):
-    student_data =  stud(user) # get info for a student
-    following = listfollowers_user(student_data['sid'])
+    student_data = stud(user) # get info for a student
     friends = listfriends(student_data['sid'])
+    friend_ids = [f['sid'] for f in friends]
+    if student_data['privacysetting'] == 'friendly public' and (not current_user.is_authenticated or current_user.id in friend_ids):
+        return redirect(url_for('not_found_error'))
+
+    following = listfollowers_user(student_data['sid'])
     applications = listapplications(student_data['sid'])
     messages = getmessages(current_user.id, student_data['sid'])
     friend_request = get_friend_request(current_user.id, student_data['sid']) if current_user.is_authenticated else None
@@ -250,7 +254,9 @@ def student_edit(user):
     print(current_user.id)
     if request.method == 'POST' and form.validate():
         print('123')
-        updateprofile(form.phone.data, form.email.data, current_user.id)
+        # phone,email,university,GPA,major,interests,qualification,sid
+        updateprofile(form.phone.data, form.email.data, form.university.data, form.GPA.data, form.major.data, 
+                        form.interest.data, form.qualifications.data, form.privacysetting.data, current_user.id)
         print(current_user.id)
         print(form.email.data)
     return render_template('form/student_update.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))

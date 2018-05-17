@@ -198,10 +198,10 @@ def studentinfo(sid, sname, loginname, phone, email, university, major, GPA, int
 #         pass
 
 #lol lol
-def updateprofile(phone,email,university,GPA,major,interests,qualification,sid):
+def updateprofile(phone,email,university,GPA,major,interests,qualification,privacysetting,sid):
     try:
         cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
-        cursor.execute("UPDATE Student set phone = %s, email = %s, university = %s, GPA =%s, major=%s, interests = %s,qualifications = %s where sid = %s;", (phone, email,university,GPA,major,interests,qualification, sid),multi=True)
+        cursor.execute("UPDATE Student set phone = %s, email = %s, university = %s, GPA =%s, major=%s, interests = %s,qualifications = %s, privacysetting = %s where sid = %s;", (phone, email,university,GPA,major,interests,qualification,privacysetting, sid),multi=True)
         cursor.execute("commit;")
         print(phone)
         return True
