@@ -46,7 +46,7 @@ def listfollowers_company(cid):
         pass
 
 #jobs #df
-def jobs(cid):
+def comjobs(cid):
     cur.execute("select distinct p.*,cname from position p join company c on p.cid = c.cid where p.cid = %s", (cid,))
     return(cur.fetchall())
 
@@ -177,7 +177,7 @@ def read_notification(aid, sid):
 
 def follow_com(cid, sid):
     try:
-        cur.execute("INSERT IGNORE INTO Follower (cid, sid, time) VALUES (%s, %s, %s);", (aid, cid, timestamp))
+        cur.execute("INSERT IGNORE INTO Follower (cid, sid, time) VALUES (%s, %s, %s);", (cid, sid, datetime.now()))
         cur.execute("COMMIT;")
         return True
     finally:

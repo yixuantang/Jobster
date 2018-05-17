@@ -28,7 +28,7 @@
 	<h3>Followers</h3>
 	<ul>
 	{% for follower in followers %}
-		<li><a href="{{ url_for('student_profile', user=follower.uid) }}">{{ follower.name }}</a> - {{ follower.school }}</li>
+		<li><a href="{{ url_for('student', user=follower.uid) }}">{{ follower.name }}</a> - {{ follower.school }}</li>
 	{% endfor %}
 	</ul>
 </section>

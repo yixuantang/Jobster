@@ -70,8 +70,8 @@ def search():
 @app.route('/student/<user>')
 def student(user):
     student_data =  stud(user) # get info for a student
-    following = listfollowers_user(user)
-    friends = listfriends(user)
+    following = listfollowers_user(student_data['sid'])
+    friends = listfriends(student_data['sid'])
     return render_template('pages/student.j2', user=student_data, following=following, friends=friends)
 
 
@@ -79,7 +79,7 @@ def student(user):
 def company(user):
     company_data = com(user)
     followers = listfollowers_company(user)
-    jobs = jobs(user)
+    jobs = comjobs(user)
     return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs)
 
 
@@ -97,40 +97,6 @@ def job(aid):
 def notifications():
     Noti_data = add_notification(current_user.id)
     return render_template('pages/notification.j2', notifs=Noti_data, user=current_user)
-
-
-# @app.route('/friends/<user>')
-# def friends(user):
-#     user_data = user # get user info, check if logged in etc.
-#     return render_template('pages/friend-list.html', user=user_data)
-
-# @app.route('/followers/<company>')
-# def followers(company):
-# 	company_data = get_followers(company)
-# 	return render_template('pages/friend-list.html', user=company_data)
-
-# @app.route('/following/<user>')
-# def following(user):
-#     company_data = listfollowers_user(user)
-#     return render_template('pages/following.j2', user=company_data)
-
-
-# @app.route('/friends/<user>')
-# def friends(user):
-#     friends_data = listfriends(user)
-#     return render_template('pages/friends.j2', user=friends_data)
-
-
-# @app.route('/follower/<company>')
-# def followers(company):
-#     company_data = listfollowers_company(company)
-#     return render_template('pages/follower.j2', user=company_data)
-
-# @app.route('/jobs/<company>')
-# def jobs(company=None):
-#     jobs_data = jobs(company)
-#     return render_template('pages/job.j2', jobs=jobs_data, company=company)
-
 
 
 
