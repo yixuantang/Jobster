@@ -64,7 +64,7 @@ def index():
 def search():
     query = request.args.get('search')
 
-    return render_template('pages/search.j2')
+    return render_template('pages/search.j2', title='Search')
 
 
 @app.route('/student/<user>')
@@ -72,7 +72,7 @@ def student(user):
     student_data =  stud(user) # get info for a student
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends)
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, title=student_data['sname'])
 
 
 @app.route('/company/<user>')
@@ -80,23 +80,23 @@ def company(user):
     company_data = com(user)
     followers = listfollowers_company(user)
     jobs = comjobs(user)
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs)
+    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, title=company_data['cname'])
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
 def job(aid):
-    thejob_data = selectjob(aid)
+    job_data = selectjob(aid)
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
         status = sendapplication(aid, current_user.id, form.email_phone.data)
-    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form)
+    return render_template('pages/job.j2', job=job_data, aid=aid, form=form, title=job_data['title'])
 
 
 @app.route('/notifications')
 @login_required
 def notifications():
     Noti_data = add_notification(current_user.id)
-    return render_template('pages/notification.j2', notifs=Noti_data, user=current_user)
+    return render_template('pages/notification.j2', notifs=Noti_data, user=current_user, title='Notifications')
 
 
 
@@ -161,7 +161,7 @@ def login():
             elif user.type == 'student':
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('student', user=user.username))
-    return render_template('form/login.j2', form=form)
+    return render_template('form/login.j2', form=form, title='Login')
 
 
 
@@ -183,7 +183,7 @@ def register():
                 login_user(user)
                 print('logged in user', user.username)
                 return redirect(url_for('student', user=user.username))
-    return render_template('form/register.j2', form=form)
+    return render_template('form/register.j2', form=form, title='Register')
 
 
 
@@ -200,7 +200,7 @@ def student_update(user):
         print(form.phone.data)
         print(form.email.data)
         print('123')
-    return render_template('form/student_update.j2', form=form, user=student_data)
+    return render_template('form/student_update.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
 
 
 @app.route('/post_job/<user>', methods=['GET', 'POST'])
@@ -210,7 +210,7 @@ def post_job(user):
     student_data =  stud(user) # get info for a student
     if request.method == 'POST' and form.validate():
         pass #
-    return render_template('form/job_posting.j2', form=form, user=student_data)
+    return render_template('form/job_posting.j2', form=form, user=student_data, title='Post New Job')
 
 
 @app.route('/logout')
