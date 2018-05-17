@@ -357,7 +357,7 @@ def getmessages(sid1, sid2):
 
 def getnewmessages(sid1, sid2, mdate):
     cur.execute( """select * from Message where 
-        sid1 = %s and sid2 = %s and mdate >= %s
+        sid1 = %s and sid2 = %s and mdate > %s
         order by mdate asc;""",(sid1, sid2, mdate))
     return(cur.fetchall())
 

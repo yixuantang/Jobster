@@ -41,14 +41,14 @@ $(document).ready(function(){
 
 
 
-	function createMessage(who, message, timestamp, status) {
+	function createMessage(who, message, status, timestamp) {
 		var cell = $('<div>').attr('class', 'message-cell ' + who);
     	var message = $('<span>').attr('class', 'message')
     		.attr('title', timestamp)
     		.data('timestamp', timestamp)
     		.text(message);
 
-    	if(status)
+    	if(status === 0)
     		cell.addClass('unread')
 
     	return cell.append(message);
@@ -56,6 +56,7 @@ $(document).ready(function(){
 
 	function getNewMessages() {
 		var last_timestamp = $('.messages .message:last').data('timestamp');
+		console.log(last_timestamp)
 		$.get($('.messages').data('get-messages'), {
 			date: last_timestamp
 		}).done(function(data){
@@ -64,7 +65,7 @@ $(document).ready(function(){
 
 			if(data.messages) {
 				data.messages.reverse().forEach(function(d){
-					var message = createMessage('you', d.mtext, d.mdate, d.mstatus);
+					var message = createMessage('you', d.mtext, d.mstatus, d.mdate);
 					$('.message-wrap').append(message);
 				})
 
@@ -87,12 +88,18 @@ $(document).ready(function(){
 	    	getNewMessages();
 	    	var my_message = createMessage('me', $(this).val());
 	        $('.message-wrap').append(my_message);
-	        keepAtBottom();
+
+	        
 
 	        $.post($(this).data('send-url'), {
 	        	message: $(this).val()
 	        }, function(data){
 				
+				my_message.find('.message')
+					.attr('title', data.timestamp)
+					.data('timestamp', data.timestamp)
+				sortMessages();
+	        	keepAtBottom();
 			})
 
 			$(this).val('')
@@ -114,12 +121,12 @@ $(document).ready(function(){
 		})
 	})
 
-	// get new nessages every 10 seconds
-	// if($('.messages').length) {
-		// setTimeout(function(){
-		// 	getNewMessages();
-		// }, 10000)
-	// }
+	// get new nessages every 5 seconds
+	if($('.messages').length) {
+		setInterval(function(){
+			getNewMessages();
+		}, 5000)
+	}
 	
 
 	// keep messages scrolled to bottom

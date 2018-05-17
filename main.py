@@ -165,9 +165,9 @@ def send_message(sid):
 
     if message:
         status = sendmessage(current_user.id, sid, message, timestamp)
-        sendmessage(sid, current_user.id, 'cool', datetime.now())
     return jsonify({
-        'success': status
+        'success': status,
+        'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S')
     })
 
 @app.route('/messages/<sid>/get')
