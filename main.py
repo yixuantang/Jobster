@@ -8,16 +8,14 @@ from auth import User
 from functions import *
 
 
-'''
 
+'''
 TODO:
 - Add some dummy content on the home page
 - Add search sql query
 - Add "mark as read" query
 - Apply/post job queries
 - Error in registration: IntegrityError: 1062 (23000): Duplicate entry 'U1230' for key 'PRIMARY'
-
-
 '''
 
 
@@ -49,9 +47,7 @@ def student_login_required(func):
 
 
 '''
-
 Page Routes
-
 '''
 
 
@@ -68,35 +64,37 @@ def search():
 
 @app.route('/student/<user>')
 def student(user):
-    student_data = stud(user)  # get info for a student
+    student_data =  stud(user) # get info for a student
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
+    applications = listapplications(student_data['sid'])
+    print(applications)
+    print(student_data)
+    print(student_data['sid'])
     print(friends)
-    print(user)
-    print('123')
-    print(current_user)
-    print(user)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends)
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications)
+
 
 @app.route('/company/<user>')
 def company(user):
     company_data = com(user)
     followers = listfollowers_company(user)
-    jobs = comjobs(user)
+    jobs = comjobs(company_data['cid'])
+    applications_com = listapplications_com(company_data['cid'])
+    print(company_data['cname'])
+    print('123')
     print(user)
-    print(current_user.username)
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs)
-
+    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com = applications_com)
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
 def job(aid):
-    thejob_data = selectjob(aid)
+    job_data = selectjob(aid)
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
         sendapplication(aid, current_user.id, form.email_phone.data)
-        return redirect(url_for('student_edit', user=current_user.username))
-    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form)
+        return redirect(url_for('student', user=current_user.username))
+    return render_template('pages/job.j2', job=job_data, aid=aid, form=form, title=job_data['title'])
 
 
 @app.route('/notifications')
@@ -109,9 +107,7 @@ def notifications():
 
 
 '''
-
 Asynchronous Methods
-
 '''
 
 @app.route('/notification/<aid>/<sid>/mark_read', methods=['POST'])
@@ -125,7 +121,7 @@ def mark_read(aid, sid):
 @app.route('/company/<user>/follow', methods=['POST'])
 @login_required
 def follow(user):
-    status = follow_com(user, current_user.id) 
+    status = follow_com(user, current_user.id)
     return jsonify({
         'success': status
     })
@@ -148,9 +144,7 @@ def apply(aid, contact_by):
 
 
 '''
-
 Form Pages
-
 '''
 
 
@@ -176,70 +170,90 @@ def login():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-        user = User.from_form(form)
+        #user = User.from_form(form)
         if form.act_type.data == 'company':
             companyregister(form.name.data, form.password.data, form.username.data)
+            user = User.from_form(form)
             if user:
                 login_user(user)
                 print('logged in company', user.username)
                 return redirect(url_for('company', user=user.username))
         elif form.act_type.data == 'student':
             studentregister(form.name.data, form.password.data, form.username.data)
-            # user = User.from_form(form)
+            user = User.from_form(form)
             if user:
                 login_user(user)
                 print('logged in user', user.username)
                 return redirect(url_for('student', user=user.username))
-    return render_template('form/register.j2', form=form)
+    return render_template('form/register.j2', form=form, title = 'Register')
 
 
+# @app.route('/student/<user>/update', methods=['GET', 'POST'])
+# @login_required
+# def student_update(user):
+#      # get info for a student
+#     form = UpdateForm(request.form)
+#     student_data = stud(user)
+#     if request.method == 'POST' and form.validate():
+#         print(current_user)
+#         print('122')
+#         updateprofile(form.phone.data, form.email.data, current_user)
+#         print(form.phone.data)
+#         print(form.email.data)
+#         print('123')
+#     return render_template('form/student_update.j2', form=form, user=student_data)
 
-@app.route('/apply/<aid>', methods=['GET', 'POST'])
-def apply(aid=None):
-    thejob_data = _selectjob(aid)
-    form = ApplicationForm(request.form)
-    if request.method == 'POST' and form.validate():
-        #user = User.from_form(form)
-        _sendapplication(aid, current_user.id,timestamp,form.email_phone.data)
-        return redirect(url_for('student_edit', user=current_user.username))
-        #pass #_sendapplication(form.email_phone, current_user,now())
-    return render_template('form/apply.j2', form=form, job = thejob_data, aid = aid)
-
-
-
-@app.route('/student/<user>/edit', methods=['GET', 'POST'])
+@app.route('/updateprofile/<user>', methods=['GET', 'POST'])
 @login_required
-def student_edit(user):
-    student_data = stud(user) # get info for a student
-    form = UpdateForm(**student_data)
+def student_update(user):
+    form = UpdateForm(request.form)
+    student_data = stud(user) #use loginname
+    print(current_user.id)
     if request.method == 'POST' and form.validate():
-        print(current_user)
-        print('122')
-        updateprofile(form.phone.data, form.email.data, current_user.id)
-        print(form.phone.data)
-        print(form.email.data)
         print('123')
-    return render_template('form/Updateprofile.j2', form=form, user=student_data)
+        updateprofile(form.phone.data, form.email.data, current_user.id)
+        print(current_user.id)
+        print(form.email.data)
+    return render_template('form/student_update.j2', form=form, user=student_data)
 
-@app.route('/company/<user>/edit')
+#func: updateprofile_com
+@app.route('/updateprofile_com/<user>', methods=['GET', 'POST'])
 @login_required
 def company_edit(user):
-    company_data = com(user)
-    return render_template('pages/update_profile.j2', user=company_data)
-
-
-### Post JOB
-@app.route('/post_job', methods=['GET', 'POST'])
-@login_required
-def post_job():
-    form = PostJob(request.form)
+    form = UpdateForm_com(request.form)
+    company_data = com(user) #use loginname
+    print(current_user.id)
     if request.method == 'POST' and form.validate():
-        postjobs(form.aid.data,current_user.id,form.joblocation.data,form.title.data,form.salary.data, form.bk.data, form.description.data)
-        print(current_user)
+        print('123')
+        updateprofile_com(form.location.data, form.industry.data, current_user.id)
+        print(current_user.id)
+        print(form.location.data)
+    return render_template('form/company_update.j2', form=form, user=company_data)
 
-        return redirect(url_for('company', user=current_user.name))
 
-    return render_template('form/job_posting.j2', form=form, company=current_user)
+@app.route('/post_job/<user>', methods=['GET', 'POST'])
+@login_required
+def post_job(user):
+    form = PostJob(request.form)
+    company_data = com_from_id(user) # get info for a company
+    if request.method == 'POST' and form.validate():
+        postjobs(current_user.id,form.joblocation.data,form.title.data,form.salary.data, form.bk.data, form.description.data)
+        return redirect(url_for('company', user=company_data['username']))
+        print(company_data['location'])
+    return render_template('form/job_posting.j2', form=form, company=company_data)
+
+@app.route('/candidate/<user>')
+def candidate(user):
+    candidate_data =  stud(user) # get info for a student
+    following = listfollowers_user(candidate_data['sid'])
+    friends = listfriends(candidate_data['sid'])
+    applications = listapplications(candidate_data['sid'])
+    print(applications)
+    print(candidate_data)
+    print(candidate_data['sid'])
+    print(friends)
+    return render_template('pages/candidate.j2', user=candidate_data, following=following, friends=friends, applications=applications)
+
 
 
 @app.route('/logout')
@@ -252,18 +266,30 @@ def logout():
 
 @app.errorhandler(500)
 def internal_error(error):
-    return render_template('layouts/error.j2', 
-        error_code=500, title='Internal Server Error', 
+    return render_template('layouts/error.j2',
+        error_code=500, title='Internal Server Error',
         message="It's our bad. Sorry! :|"), 500
 
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('layouts/error.j2', 
-        error_code=404, title='Page Not Found', 
+    return render_template('layouts/error.j2',
+        error_code=404, title='Page Not Found',
         message="I think you're lost. That sucks."), 404
 
 
+
+# def postjob():
+#     form = PostJob(request.form)
+#     # company_data = com_from_id(user) # get info for a student
+#     if request.method == 'POST' and form.validate():
+#         print(current_user)
+#         print('122')
+#         postjobs(form.phone.data, form.email.data, current_user)
+#         print(form.phone.data)
+#         print(form.email.data)
+#         print('123')
+#     return render_template('form/Updateprofile.j2', form=form, user=company_data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
