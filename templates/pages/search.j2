@@ -28,14 +28,27 @@
 	</section>
 	{% endif %}
 
+	{% if jobs|length %}
+	<section class='box'>
+		<h2>Jobs</h2>
+		<ul class='alt'>
+		{% for result in jobs %}
+			<li>
+				<a href="{{ url_for('job', aid=result.aid) }}">{{ result.title }}</a> - <a href="{{ url_for('company', user=result.cname) }}">{{ result.cname }}</a> {{ result.location }} <br />
+				{{ result.description }}
+			</li>
+		{% endfor %}
+		</ul>
+	</section>
+	{% endif %}
+
 	{% if companies|length %}
 	<section class='box'>
 		<h2>Companies</h2>
 		<ul class='alt'>
 		{% for result in companies %}
 			<li>
-				<a href="{{ url_for('job', aid=result.aid) }}">{{ result.title }}</a> - <a href="{{ url_for('company', user=result.cname) }}">{{ result.cname }}</a> {{ result.location }} <br />
-				{{ result.description }}
+				<a href="{{ url_for('company', user=result.cname) }}">{{ result.cname }}</a>, {{ result.location }}, {{ result.industry }}
 			</li>
 		{% endfor %}
 		</ul>

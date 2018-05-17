@@ -67,13 +67,13 @@ def search():
 
     if query:
         students = search_student(query)
-        # jobs = search_jobs(query)
+        jobs = search_jobs(query)
         company = search_company(query)# if current_user.type != 'company' else []
     else:
-        students, company = [], []
+        students, company, jobs = [], [], []
 
     print(students, company)
-    return render_template('pages/search.j2', students=students, companies=company, title='Search')
+    return render_template('pages/search.j2', students=students, jobs=jobs, companies=company, title='Search')
 
 ##### You can remove this once the messages query is working. it's just for creating fake messages
 from datetime import datetime, timedelta
@@ -88,7 +88,8 @@ def student(user):
 
     following = listfollowers_user(student_data['sid'])
     applications = listapplications(student_data['sid'])
-    messages = getmessages(current_user.id, student_data['sid'])
+    
+    messages = getmessages(current_user.id, student_data['sid']) if current_user.is_authenticated else None
     friend_request = get_friend_request(current_user.id, student_data['sid']) if current_user.is_authenticated else None
     return render_template('pages/student.j2', user=student_data, following=following, friends=friends, 
         applications=applications, messages=messages, friend_request=friend_request, title=student_data['sname'])

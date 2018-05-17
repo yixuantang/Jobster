@@ -383,11 +383,18 @@ def has_applied(aid, sid):
 
 
 def search_company(keyword):
-    cur.execute("select  p.aid, c.cname, p.title, p.description from Company c join position p  where p.cid = c.cid and (p.title like %s or c.cname like %s  or p.description like %s);", (('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%')))
+    kw_like = '%' + keyword + '%'
+    cur.execute("select * from Company c where (c.cname like %s or c.location like %s or c.industry like %s);", (kw_like, kw_like, kw_like))
+    return(cur.fetchall())
+
+def search_jobs(keyword):
+    kw_like = '%' + keyword + '%'
+    cur.execute("select  p.aid, c.cname, p.title, p.description from Company c join position p  where p.cid = c.cid and (p.title like %s or c.cname like %s  or p.description like %s);", (kw_like, kw_like, kw_like))
     return(cur.fetchall())
 
 def search_student(keyword):
-    cur.execute("select s.sname, s.sid from Student s where (s.sname like %s or s.interests like %s  or s.qualifications like %s or s.major like %s or s.university like %s);", (('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%')))
+    kw_like = '%' + keyword + '%'
+    cur.execute("select s.sname, s.sid from Student s where (s.sname like %s or s.interests like %s  or s.qualifications like %s or s.major like %s or s.university like %s);", (kw_like, kw_like, kw_like, kw_like, kw_like))
     return(cur.fetchall())
 
 
