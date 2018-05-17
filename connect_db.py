@@ -299,8 +299,16 @@ def _notify(keyword, aid, ndate):
     for i in student_names:
         _sendnotification(aid, i["sid"], ndate)
         
+#updates the messages
 
+def _updatemessage(sid1, sid2, mdate, mstatus):
+    cursor = cnx.cursor()
+    try:
+        cursor.execute( "set sql_safe_updates = 0; UPDATE Message set mstatus = %s where mdate = %s and sid1 = %s, sid2 = %s;",(mstatus, mdate, sid1, sid2))
+        cursor.execute("COMMIT;")
 
+    finally:
+        cursor.close()
 
 
 

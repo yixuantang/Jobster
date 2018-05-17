@@ -50,5 +50,7 @@ class PostJob(FlaskForm):
 	submit = SubmitField("Post")
 
 class SearchForm(FlaskForm):
+	class Meta:
+		csrf = True
 	query = StringField("Search")
 	submit = SubmitField("Search")

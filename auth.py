@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from functions import student_from_id, com_from_id, veristudentpassword, vericompanypassword
+from functions import student_from_id, com_from_id, veristudentpassword, vericompanypassword, hash_password
 
 
 

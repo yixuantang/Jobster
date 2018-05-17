@@ -30,7 +30,13 @@ app.config.update(dict(
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-login_manager.user_loader(lambda id: User.from_id(id, type='student' if id.startswith('U') else 'company'))
+
+@login_manager.user_loader
+def load_user_from_id(id):
+    try:
+        return User.from_id(id, type='student' if id.startswith('U') else 'company')
+    except:
+        return None
 
 
 @app.context_processor
@@ -59,20 +65,38 @@ def index():
 def search():
     query = request.args.get('search')
 
-    return render_template('pages/search.j2')
+    return render_template('pages/search.j2', title='Search')
 
+##### You can remove this once the messages query is working. it's just for creating fake messages
+from datetime import datetime, timedelta
 
 @app.route('/student/<user>')
 def student(user):
     student_data =  stud(user) # get info for a student
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
+<<<<<<< HEAD
     applications = listapplications(student_data['sid'])
     print(applications)
     print(student_data)
     print(student_data['sid'])
     print(friends)
     return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications)
+=======
+
+    # messages = [
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='Hi', mdate=datetime.now() - timedelta(minutes=25), mstatus=1),
+    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='Hello', mdate=datetime.now() - timedelta(minutes=20), mstatus=1),
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='yo', mdate=datetime.now() - timedelta(minutes=15), mstatus=1),
+    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext="you're beautiful", mdate=datetime.now() - timedelta(minutes=10), mstatus=1),
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='thanks man', mdate=datetime.now() - timedelta(minutes=5), mstatus=1),
+    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='poop', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='lol', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
+    # ]
+    messages = getmessages(current_user.id, student_data['sid'])
+    print(messages)
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, messages=messages, title=student_data['sname'])
+>>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 
 @app.route('/company/<user>')
@@ -84,7 +108,13 @@ def company(user):
     print(company_data['cname'])
     print('123')
     print(user)
+<<<<<<< HEAD
     return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com = applications_com)
+=======
+    print(current_user.username)
+    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, title=company_data['cname'])
+
+>>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
@@ -93,15 +123,20 @@ def job(aid):
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
         sendapplication(aid, current_user.id, form.email_phone.data)
+<<<<<<< HEAD
         return redirect(url_for('student', user=current_user.username))
     return render_template('pages/job.j2', job=job_data, aid=aid, form=form, title=job_data['title'])
+=======
+        return redirect(url_for('student_edit', user=current_user.username))
+    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form, title=job_data['title'])
+>>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 
 @app.route('/notifications')
 @login_required
 def notifications():
     Noti_data = add_notification(current_user.id)
-    return render_template('pages/notification.j2', notifs=Noti_data, user=current_user)
+    return render_template('pages/notification.j2', notifs=Noti_data, user=current_user, title='Notifications')
 
 
 
@@ -143,6 +178,49 @@ def apply(aid, contact_by):
     })
 
 
+@app.route('/message/<sid>/send', methods=['POST'])
+@login_required
+def send_message(sid):
+    status = False
+    timestamp = datetime.now()
+    message = request.form.get('message')
+
+    if message:
+        status = sendmessage(current_user.id, sid, message, timestamp)
+        sendmessage(sid, current_user.id, 'cool', datetime.now())
+    return jsonify({
+        'success': status
+    })
+
+@app.route('/messages/<sid>/get')
+@login_required
+def get_messages(sid):
+    date = request.args.get('date')
+    messages = getnewmessages(sid, current_user.id, date)
+    return jsonify({
+        # 'success': status,
+        'messages': messages
+    })
+
+@app.route('/messages/<sid>/all')
+@login_required
+def get_all_messages(sid):
+    messages = getmessages(sid, current_user.id)
+    return jsonify({
+        # 'success': status,
+        'messages': messages
+    })
+
+
+@app.route('/message/<sid>/read/<date>', methods=['POST'])
+@login_required
+def read_message(sid, date):
+    status = markreadmessage(current_user.id, sid, date)
+    return jsonify({
+        'success': status
+    })
+
+
 '''
 Form Pages
 '''
@@ -162,7 +240,7 @@ def login():
             elif user.type == 'student':
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('student', user=user.username))
-    return render_template('form/login.j2', form=form)
+    return render_template('form/login.j2', form=form, title='Login')
 
 
 
@@ -170,7 +248,10 @@ def login():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
+<<<<<<< HEAD
         #user = User.from_form(form)
+=======
+>>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
         if form.act_type.data == 'company':
             companyregister(form.name.data, form.password.data, form.username.data)
             user = User.from_form(form)
@@ -185,6 +266,7 @@ def register():
                 login_user(user)
                 print('logged in user', user.username)
                 return redirect(url_for('student', user=user.username))
+<<<<<<< HEAD
     return render_template('form/register.j2', form=form, title = 'Register')
 
 
@@ -204,6 +286,14 @@ def register():
 #     return render_template('form/student_update.j2', form=form, user=student_data)
 
 @app.route('/updateprofile/<user>', methods=['GET', 'POST'])
+=======
+    return render_template('form/register.j2', form=form, title='Register')
+
+
+
+
+@app.route('/student/<user>/edit', methods=['GET', 'POST'])
+>>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 @login_required
 def student_update(user):
     form = UpdateForm(request.form)
@@ -214,7 +304,13 @@ def student_update(user):
         updateprofile(form.phone.data, form.email.data, current_user.id)
         print(current_user.id)
         print(form.email.data)
+<<<<<<< HEAD
     return render_template('form/student_update.j2', form=form, user=student_data)
+=======
+        print('123')
+    return render_template('form/Updateprofile.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
+
+>>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 #func: updateprofile_com
 @app.route('/updateprofile_com/<user>', methods=['GET', 'POST'])
