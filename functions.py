@@ -382,7 +382,17 @@ def has_applied(aid, sid):
 
 
 
-def search_results(query):
+def search_company(keyword):
+    cur.execute("select  p.aid, c.cname, p.title, p.description from Company c join position p  where p.cid = c.cid and (p.title like %s or c.cname like %s  or p.description like %s);", (('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%')))
+    return(cur.fetchall())
+
+def search_student(keyword):
+    cur.execute("select s.sname, s.sid from Student s where (s.sname like %s or s.interests like %s  or s.qualifications like %s or s.major like %s or s.university like %s);", (('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%'), ('%' + keyword + '%')))
+    return(cur.fetchall())
+
+
+
+# def search_results(query):
 #     cur.execute("""SELECT * from (
 #   SELECT
 #     'student' as type, loginname as slug, sname as name, university, major, (MATCH(content) AGAINST (@target)) as relevance
@@ -400,5 +410,5 @@ def search_results(query):
 # )
 # as sitewide WHERE relevance > 0;
 # """)
-    return(cur.fetchall())
+    # return(cur.fetchall())
 

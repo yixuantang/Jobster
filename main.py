@@ -63,9 +63,17 @@ def index():
 
 @app.route('/search')
 def search():
-    query = request.args.get('search')
+    query = request.args.get('query', '')
 
-    return render_template('pages/search.j2', title='Search')
+    if query:
+        students = search_student(query)
+        # jobs = search_jobs(query)
+        company = search_company(query)# if current_user.type != 'company' else []
+    else:
+        students, company = [], []
+
+    print(students, company)
+    return render_template('pages/search.j2', students=students, companies=company, title='Search')
 
 ##### You can remove this once the messages query is working. it's just for creating fake messages
 from datetime import datetime, timedelta
