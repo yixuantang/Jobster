@@ -65,6 +65,8 @@ def search():
 
     return render_template('pages/search.j2', title='Search')
 
+##### You can remove this once the messages query is working. it's just for creating fake messages
+from datetime import datetime, timedelta
 
 @app.route('/student/<user>')
 def student(user):
@@ -76,7 +78,18 @@ def student(user):
     print('123')
     print(current_user)
     print(user)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, title=student_data['sname'])
+
+    messages = [
+        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='Hi', mdate=datetime.now() - timedelta(minutes=25), mstatus=1),
+        dict(sid1=student_data['sid'], sid2=current_user.id, mtext='Hello', mdate=datetime.now() - timedelta(minutes=20), mstatus=1),
+        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='yo', mdate=datetime.now() - timedelta(minutes=15), mstatus=1),
+        dict(sid1=student_data['sid'], sid2=current_user.id, mtext="you're beautiful", mdate=datetime.now() - timedelta(minutes=10), mstatus=1),
+        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='thanks man', mdate=datetime.now() - timedelta(minutes=5), mstatus=1),
+        dict(sid1=student_data['sid'], sid2=current_user.id, mtext='poop', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
+        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='lol', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
+    ]
+
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, messages=messages, title=student_data['sname'])
 
 
 @app.route('/company/<user>')
@@ -147,6 +160,33 @@ def apply(aid, contact_by):
         'success': status
     })
 
+
+@app.route('/send_message/<sid>', methods=['POST'])
+@login_required
+def send_message(sid):
+    status = False
+    timestamp = datetime.now()
+    message = request.form.get('message')
+    if message:
+        status = True#sendmessage(current_user.id, sid, message, timestamp)
+    return jsonify({
+        'success': status
+    })
+
+@app.route('/get_messages/<sid>')
+@login_required
+def get_messages(sid):
+    date = request.args.get('date')
+    messages = [
+        dict(sid1=sid, sid2=current_user.id, mtext='Hi', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
+        dict(sid1=sid, sid2=current_user.id, mtext='Hooopla', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
+    ]
+
+    # messages = get_messages()
+    return jsonify({
+        # 'success': status,
+        'messages': messages
+    })
 
 '''
 
