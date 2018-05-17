@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, RadioField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, RadioField, SelectField, BooleanField, SubmitField
 from wtforms import validators as v, ValidationError
 
 '''
@@ -27,17 +27,18 @@ class RegistrationForm(FlaskForm):
 	submit = SubmitField("Register")
 
 class ApplicationForm(FlaskForm):
-	email_phone = StringField("Email/Phone")
+	email_phone = SelectField("Contact via", choices=[('email', 'Email'), ('phone', 'Phone')])
 	submit = SubmitField("Apply")
 
 class UpdateForm(FlaskForm):
 	phone = StringField("your phone")
 	email = StringField("your email")
 	university = StringField("your university")
+	major = StringField("your major")
 	GPA = StringField("your GPA")
 	interest = StringField("your interest")
 	qualifications = StringField("your qualifications")
-	privacy_setting = RadioField("your privacy setting", [('public', 'Public'), ('friendly public', 'Friends')])
+	privacysetting = SelectField("your privacy setting", choices=[('public', 'Public'), ('friendly public', 'Friends')])
 	# resume = StringField("your university")
 	submit = SubmitField("Update")
 

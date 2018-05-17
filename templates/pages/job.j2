@@ -10,8 +10,16 @@
     <h2><i class='idno'>{{ job.aid }}</i> {{ job.title }} - {{ job.cname }}</h2>
     <h3>${{ job.salary }} - <b>location:</b> {{ job.joblocation }} </h3>
     <h4><b>Jobs Requirement:</b> {{ job.bk }}</h4>
-    <ul class='actions'>
-    	<li><a href="{{ url_for('apply', aid=job.aid) }}" class="button">Apply</a></li>
-    </ul>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="row uniform 50%">
+            <div class="6u">
+                {{ form.email_phone(placeholder='Contact via') }}
+            </div>
+            <div class="6u">
+                {{ form.submit() }}
+            </div>
+        </div>
+    </form>
 
 {% endblock %}
