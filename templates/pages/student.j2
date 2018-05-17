@@ -17,11 +17,11 @@
 	{% if current_user.username == user.loginname %}
 		<li><a class='button edit-profile' href="{{ url_for('student_edit', user=user.loginname) }}">Edit Profile</a></li>
 	{% elif current_user.type == 'student' %}
-		<li><a class='button action friend-request' href="{{ url_for('friend_request', user=user.loginname) }}" 
+		<li><a class='button action friend-request' href="{{ url_for('friend_request', user=user.sid) }}" 
 				data-pending="Request Sent!"
-				data-friends="Friends :)"
+				data-accepted="Friends :)"
 				data-next='pending'
-				data-state="{{ 'pending' if friend_request.status == 0 else 'friend' if friend_request.status == 1 }}"
+				data-state="{{ friend_request.status }}"
 				>Friend Request</a></li>
 	{% endif %}
 	{% endblock %}

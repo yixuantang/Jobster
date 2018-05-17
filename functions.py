@@ -10,7 +10,7 @@ cnx = mysql.connector.connect(user='root', passwd='root',
                               host='localhost',port='3306',db='love',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
-cur = cnx.cursor(dictionary=True)
+cur = cnx.cursor(dictionary=True, buffered=True)
 
 """
 functions
@@ -302,7 +302,7 @@ def follow_com(cid, sid):
 
 def send_friend_request(sid_send, sid_receive):
     try:
-        cur.execute("INSERT INTO Request (sid,Friendid,status,rdate) VALUES (%s,%s,%s,%s);", (sid_send, sid_receive, 0, datetime.now()))
+        cur.execute("INSERT INTO Request (sid,Friendid,status,rdate) VALUES (%s,%s,%s,%s);", (sid_send, sid_receive, 'pending', datetime.now()))
         cur.execute("COMMIT;")
         return True
     finally:
@@ -311,7 +311,7 @@ def send_friend_request(sid_send, sid_receive):
 
 def accept_friend_request(sid_receive, sid_send):
     try:
-        cur.execute("UPDATE Request SET nstatus = '1' WHERE aid = %s AND sid = %s;", (sid_receive, sid_send))
+        cur.execute("UPDATE Request SET nstatus = '1' WHERE sid = %s AND Friendid = %s;", (sid_receive, sid_send))
         cur.execute("COMMIT;")
         return True
     finally:
