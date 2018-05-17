@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from functions import _student_from_id, _com_from_id, _veristudentpassword, _vericompanypassword
+from functions import _student_from_id, _com_from_id, _veristudentpassword, _vericompanypassword, hash_password
 
 
 
@@ -16,6 +16,7 @@ class User(UserMixin):
 
     @staticmethod
     def verify_user_data(username, password, type='student'):
+        password = hash_password(password)
         if type == 'company':
             profile_data = _vericompanypassword(username, password)
             return User.from_company_data(profile_data)

@@ -1,8 +1,16 @@
 import mysql.connector
 import hashlib, uuid
+import MySQLdb
+import time
+import datetime
+
+ts = time.time()
+timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+timeid = datetime.datetime.fromtimestamp(ts).strftime('%m%d%H%M%S')
 #connection
-cnx = mysql.connector.connect(user='root', passwd='root',
-                              host='localhost',port='3306',db='love',autocommit=True)
+#connection
+cnx = mysql.connector.connect(user='root', passwd='new_password',
+                              host='localhost',port='3306',db='love1',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 # cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
 cur = cnx.cursor(dictionary=True)
@@ -10,6 +18,12 @@ cur = cnx.cursor(dictionary=True)
 """
 functions
 """
+salt = 'askjdfhkjashr43iuwq78efbqwuig   7wr83gewguifgiwu3   27eg3e'
+
+#hash password
+def hash_password(password):
+    hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
+    return hashed_password
 
 #Com page
 def _com(cname):
@@ -20,7 +34,7 @@ def _com_from_id(cid):
     cur.execute("select * from company where cid = %s;", (cid,))
     return(cur.fetchone())
 
-#df student
+#df student  use sid to find the user
 def _student(loginname):
     cur.execute("select * from student where loginname = %s;", (loginname,))
     return(cur.fetchone())
@@ -81,9 +95,8 @@ def _selectjob(aid):
 #regis student
 def _studentregister(sname, password, loginname):
     try:
-        salt = uuid.uuid4().hex
-        hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
-        cur.execute( "INSERT INTO Student(sname, password, loginname) VALUES (%s, %s, %s);",(sname, hashed_password, loginname))
+        hashed_password = hash_password(password)
+        cur.execute( "INSERT INTO Student(sid,sname, password, loginname) VALUES (%s,%s, %s, %s);",(int(timeid), sname, hashed_password, loginname))
         cur.execute("COMMIT;")
 
     finally:
@@ -91,9 +104,8 @@ def _studentregister(sname, password, loginname):
 #regis com
 def _companyregister(username, password, cname):
     try:
-        salt = uuid.uuid4().hex
-        hashed_password = hashlib.sha512(password + salt).hexdigest()
-        cur.execute( "INSERT INTO Company(username, password, cname) VALUES (%s, %s, %s);",(username, hashed_password, cname))
+        hashed_password = hash_password(password)
+        cur.execute( "INSERT INTO Company(cid, username, password, cname) VALUES (%s,%s, %s, %s);",(int(ts),username, hashed_password, cname))
         cur.execute("COMMIT;")
 
     finally:
@@ -102,8 +114,7 @@ def _companyregister(username, password, cname):
 #update profile
 def _studentinfo(sid, sname, loginname, phone, email, university, major, GPA, interests, qualifications, privacysetting, Resume):
     try:
-        # salt = uuid.uuid4().hex
-        # hashed_password = hashlib.sha512(password + salt).hexdigest()
+        # hashed_password = hash_password(password)
         cur.execute("""set sql_safe_updates= 0; UPDATE Student 
             set phone = %s, email = %s, university = %s, major = %s, GPA = %s, interests = %s, 
             qualifications = %s, privacy setting = %s, Resume = %s where loginname = %s;""",
@@ -137,11 +148,7 @@ def _listfollowers_user(sid):
     finally:
         pass
 
-#hash password
-def hash_password(password):
-    salt = uuid.uuid4().hex
-    hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
-    return hashed_password
+
 
 
 #list friends
@@ -158,30 +165,41 @@ def hash_password(password):
 #         cursor.close()
 
 def _listfriends(sid):
+    cursor = cnx.cursor(dictionary=True)
     try:
-        cur.execute("""select student.loginname, student.sname 
-            from (select sid, Friendid from Request where status = 'accepted' and (sid = %s OR Friendid = %s)) as a, 
-                student where student.sid != %s and (a.Friendid = student.sid or  a.sid = student.sid);""", (sid, sid, sid))
-        friends = cur.fetchall()
+        cursor.execute("select student.loginname, student.sname, student.sid from(select sid, Friendid from Request where status = 'accepted' and (sid = '"+sid+"' OR Friendid ='"+sid+"'))as a,student where student.sid !='"+sid+"' and (a.Friendid = student.sid or  a.sid = student.sid);")
+        friends = cursor.fetchall()
+        print(friends)
         return(friends)
     finally:
-        pass
+        cursor.close()
+# def _listfriends(sid):
+#     try:
+#         cur.execute("""select student.loginname, student.sname
+#             from (select sid, Friendid from Request where status = 'accepted' and (sid = %s OR Friendid = %s)) as a,
+#                 student where student.sid != %s and (a.Friendid = student.sid or  a.sid = student.sid);""", (sid, sid, sid))
+#         friends = cur.fetchall()
+#         return(friends)
+#     finally:
+#         pass
 
 
 #application
-def _sendapplication(aid, sid, atime, contacttype, astatus):
+def _sendapplication(aid, sid, timestamp, contacttype):
+    cursor = cnx.cursor()
     try:
-        cur.execute( "INSERT INTO Application(aid, sid, atime, contacttype, astatus) VALUES (%s, %s, %s, %s, %s);", (aid, sid, atime, contacttype, astatus))
-        cur.execute("COMMIT;")
+        cursor.execute( "INSERT INTO Application(aid, sid, atime, contacttype) VALUES (%s, %s, %s, %s);", (aid, sid, timestamp, contacttype))
+        cursor.execute("COMMIT;")
     finally:
-        pass
+        cursor.close()
 #post jobs
-def _postjobs(aid,cid,joblocation,title,salary,bk,description,pdate):
+def _postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
+    cursor = cnx.cursor()
     try:
-        cur.execute("INSERT INTO position(aid, cid, joblocation, title, salary, bk, description, pdate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);",(aid, cid, joblocation, title, salary, bk, description, pdate))
-        cur.execute("COMMIT;")
+        cursor.execute( "INSERT INTO position (aid, cid, joblocation,title,salary,bk,description,pdate) VALUES (%s,%s, %s, %s,%s, %s, %s, %s);", (aid,cid, joblocation,title,salary,bk,description, timestamp))
+        cursor.execute("COMMIT;")
     finally:
-        pass
+        cursor.close()
 
 
 

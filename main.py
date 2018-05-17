@@ -6,10 +6,9 @@ from flask_login import LoginManager, UserMixin, login_required, login_user, log
 from forms import *
 from auth import User
 
-from functions import (_listfollowers_company, _jobs, _student, updateprofile, _postjobs, hash_password, _listfriends, 
+from functions import (_listfollowers_company, _jobs, _student,_sendapplication, updateprofile, _postjobs, hash_password,timestamp, _listfriends,
                     _student_from_id, _com,_listfollowers_user, _com_from_id,_studentregister,_companyregister, 
                     _veristudentpassword, _vericompanypassword, _Notifications, _selectjob)
-
 
 
 '''
@@ -70,7 +69,21 @@ def student(user):
     student_data = _student(user) # get info for a student
     following = _listfollowers_user(user)
     friends = _listfriends(user)
+    print(friends)
+    print(user)
+    print('123')
+    print(current_user)
+    print(user)
     return render_template('pages/student.j2', user=student_data, following=following, friends=friends)
+
+#
+# @app.route('/student/<user>')
+# def student(user):
+#     student_data =  stud(user) # get info for a student
+#     following = listfollowers_user(student_data['sid'])
+#     friends = listfriends(student_data['sid'])
+#     return render_template('pages/student.j2', user=student_data, following=following, friends=friends)
+
 
 @app.route('/student/<user>/edit')
 @login_required
@@ -78,7 +91,7 @@ def student_edit(user):
     student_data = _student(user) # get info for a student
     following = _listfollowers_user(user)
     friends = _listfriends(user)
-    return render_template('pages/update_profile.j2', user=student_data, following=following, friends=friends)
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends)
 
 
 @app.route('/company/<user>')
@@ -86,8 +99,16 @@ def company(user):
     company_data =_com(user)
     followers = _listfollowers_company(user)
     jobs = _jobs(user)
+    print(user)
+    print(current_user.username)
     return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs)
 
+
+@app.route('/company/<user>/edit')
+@login_required
+def company_edit(user):
+    company_data = _com(user)
+    return render_template('pages/update_profile.j2', user=company_data)
 
 @app.route('/job/<aid>')
 def job(aid=None):
@@ -190,7 +211,7 @@ def login():
                 return redirect(url_for('company', user=user.username))
             elif user.type == 'student':
                 login_user(user, remember=form.remember.data)
-                return redirect(url_for('student_home', user=user.username))
+                return redirect(url_for('student', user=user.username))
     return render_template('form/login.j2', form=form)
 
 
@@ -212,21 +233,39 @@ def register():
             if user:
                 login_user(user)
                 print('logged in user', user.username)
-                return redirect(url_for('student_home', user=user.username))
+                return redirect(url_for('student', user=user.username))
     return render_template('form/register.j2', form=form)
 
 
 
 @app.route('/apply/<aid>', methods=['GET', 'POST'])
-@login_required
-def apply(aid):
+def apply(aid=None):
+    thejob_data = _selectjob(aid)
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate():
-        pass #_sendapplication(form.email_phone, current_user,now())
-    return render_template('form/apply.j2', form=form)
+        #user = User.from_form(form)
+        _sendapplication(aid, current_user.id,timestamp,form.email_phone.data)
+        return redirect(url_for('student_edit', user=current_user.username))
+        #pass #_sendapplication(form.email_phone, current_user,now())
+    return render_template('form/apply.j2', form=form, job = thejob_data, aid = aid)
+
+#
+# @app.route('/student/<user>/update', methods=['GET', 'POST'])
+# @login_required
+# def update_profile(user):
+#     form = UpdateForm(request.form)
+#     student_data = _student(user) # get info for a student
+#     if request.method == 'POST' and form.validate():
+#         print(current_user)
+#         print('122')
+#         updateprofile(form.phone.data, form.email.data, current_user)
+#         print(form.phone.data)
+#         print(form.email.data)
+#         print('123')
+#     return render_template('form/update_profile.j2', form=form, user=student_data)
 
 
-@app.route('/student/<user>/update', methods=['GET', 'POST'])
+@app.route('/updateprofile/<user>', methods=['GET', 'POST'])
 @login_required
 def update_profile(user):
     form = UpdateForm(request.form)
@@ -238,17 +277,30 @@ def update_profile(user):
         print(form.phone.data)
         print(form.email.data)
         print('123')
-    return render_template('form/update_profile.j2', form=form, user=student_data)
+    return render_template('form/Updateprofile.j2', form=form, user=student_data)
 
-
-@app.route('/post_job/<user>', methods=['GET', 'POST'])
+# job posting
+# @app.route('/post_job/<user>', methods=['GET', 'POST'])
+# @login_required
+# def post_job(user):
+#     form = PostJob(request.form)
+#     student_data = _student(user) # get info for a student
+#     if request.method == 'POST' and form.validate():
+#         pass #
+#     return render_template('form/job_posting.j2', form=form, user=student_data)
+### Post JOB
+@app.route('/post_job', methods=['GET', 'POST'])
 @login_required
-def post_job(user):
+def post_job():
     form = PostJob(request.form)
-    student_data = _student(user) # get info for a student
+    #company_data = _com_from_id(current_user.id) # get info for a company
     if request.method == 'POST' and form.validate():
-        pass #
-    return render_template('form/job_posting.j2', form=form, user=student_data)
+        _postjobs(form.aid.data,current_user.id,form.joblocation.data,form.title.data,form.salary.data, form.bk.data, form.description.data,timestamp)
+        print(current_user)
+
+        return redirect(url_for('company', user=current_user.name))
+
+    return render_template('form/job_posting.j2', form=form, company=current_user)
 
 
 @app.route('/logout')
