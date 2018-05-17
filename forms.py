@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, RadioField, SelectField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, RadioField, BooleanField, SubmitField
 from wtforms import validators as v, ValidationError
 
 '''
@@ -27,30 +27,36 @@ class RegistrationForm(FlaskForm):
 	submit = SubmitField("Register")
 
 class ApplicationForm(FlaskForm):
-	email_phone = SelectField("Contact via", choices=[('email', 'Email'), ('phone', 'Phone')])
+	email_phone = StringField("Email/Phone")
 	submit = SubmitField("Apply")
 
 class UpdateForm(FlaskForm):
 	phone = StringField("your phone")
 	email = StringField("your email")
 	university = StringField("your university")
-	major = StringField("your major")
 	GPA = StringField("your GPA")
-	interest = StringField("your interest")
+	major = StringField("your major")
+	interests = StringField("your interest")
 	qualifications = StringField("your qualifications")
-	privacysetting = SelectField("your privacy setting", choices=[('public', 'Public'), ('friendly public', 'Friends')])
+	privacy_setting = StringField("your qualifications")
+	#privacy_setting = RadioField("your privacy setting", [('public', 'Public'), ('friendly public', 'Friends')])
 	# resume = StringField("your university")
 	submit = SubmitField("Update")
 
+class UpdateForm_com(FlaskForm):
+	location = StringField("company location")
+	industry = StringField("company industry")
+	submit = SubmitField("Update")
+
 class PostJob(FlaskForm):
-	joblocation = StringField("Job location")
+	aid = StringField("aid")
+	joblocation = StringField("job location")
 	title = StringField("job title")
 	salary = StringField("salary")
-	bk = StringField("Background requirement")
+	bk = StringField("back ground requirment")
+	description = StringField("detailed description")
 	submit = SubmitField("Post")
 
 class SearchForm(FlaskForm):
-	class Meta:
-		csrf = True
 	query = StringField("Search")
 	submit = SubmitField("Search")
