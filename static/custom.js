@@ -1,7 +1,41 @@
+
+$.fn.actionButton = function(o){
+	$(this).click(function() {
+		var $this = $(this);
+
+		if($this.hasClass('fired'))
+			return false; // only trigger once
+
+	    $.post($this.attr('href'))
+	    	.done(function(data){
+		    	// success!
+				console.log(data);
+
+				var state = $this.data('next') || 'success'
+				$this.data('state', state)
+
+				if($this.data(state))
+					$this.text($this.data(state));
+				$this.addClass('special').addClass('fired');
+			})
+			.fail(function(data){});
+
+	    return false;
+	});
+
+	$(this).filter(function(){
+		return $(this).data('state');
+	}).addClass('special').addClass('fired').each(function(){
+		$(this).text($(this).data($(this).data('state'))); 
+	});
+}
+
+window.isActive = true;
+$(window).focus(function() { this.isActive = true; });
+$(window).blur(function() { this.isActive = false; });
+
+
 $(document).ready(function(){
-
-
-
 
 	$('.notification.unread').on('click', function(){
 		var $this = $(this);
@@ -15,27 +49,7 @@ $(document).ready(function(){
 	});
 
 
-	$('.action').click(function() {
-		var $this = $(this);
-
-		if($this.hasClass('fired'))
-			return false; // only trigger once
-
-	    $.post($this.attr('href'))
-	    	.done(function(data){
-		    	// success!
-				console.log(data);
-
-				if($this.data('success'))
-					$this.text($this.data('success'));
-				$this.addClass('special').addClass('fired');
-			})
-			.fail(function(data){});
-
-	    return false;
-	});
-
-
+	$('.action').actionButton();
 
 
 
@@ -124,8 +138,10 @@ $(document).ready(function(){
 	// get new nessages every 5 seconds
 	if($('.messages').length) {
 		setInterval(function(){
-			getNewMessages();
-		}, 5000)
+			if (window.isActive) {
+			    getNewMessages();
+			}
+		}, 8000)
 	}
 	
 

@@ -76,13 +76,10 @@ def student(user):
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
     applications = listapplications(student_data['sid'])
-    print(applications)
-    print(student_data)
-    print(student_data['sid'])
-    print(friends)
     messages = getmessages(current_user.id, student_data['sid'])
-    print(messages)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications, messages=messages, title=student_data['sname'])
+    friend_request = get_friend_request(current_user.id, student_data['sid']) if current_user.is_authenticated else None
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, 
+        applications=applications, messages=messages, friend_request=friend_request, title=student_data['sname'])
 
 
 
@@ -92,16 +89,17 @@ def company(user):
     followers = listfollowers_company(user)
     jobs = comjobs(company_data['cid'])
     applications_com = listapplications_com(company_data['cid'])
-    print(company_data['cname'])
-    print('123')
-    print(user)
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com=applications_com, title=company_data['cname'])
+    im_following = is_following(current_user.id, company_data['cid']) if current_user.is_authenticated else None
+    return render_template('pages/company.j2', company=company_data, followers=followers, 
+        jobs=jobs, applications_com=applications_com, im_following=im_following, title=company_data['cname'])
 
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
 def job(aid):
     job_data = selectjob(aid)
+    sent_application = has_applied(aid, current_user.id) if current_user.is_authenticated else None
+    print(sent_application)
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
         sendapplication(aid, current_user.id, form.email_phone.data)

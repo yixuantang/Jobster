@@ -226,7 +226,7 @@ def listfollowers_user(sid):
 #list applications
 def listapplications(sid):
     try:
-        cur.execute("""select p.aid, p.title, a.astatus from application a join position p where p.aid = a.aid and a.sid = %s;""", (sid,))
+        cur.execute("""select p.aid, p.title, p.salary, a.astatus, c.cname, c.location, c.cid from application a join position p join company c where p.aid = a.aid and p.cid = c.cid and a.sid = %s;""", (sid,))
         return(cur.fetchall())
     finally:
         pass
@@ -302,7 +302,7 @@ def follow_com(cid, sid):
 
 def send_friend_request(sid_send, sid_receive):
     try:
-        cur.execute("INSERT IGNORE INTO Request (sid,Friendid,rdate) VALUES (%s,%s,%s);", (sid_send, sid_receive, datetime.now()))
+        cur.execute("INSERT INTO Request (sid,Friendid,status,rdate) VALUES (%s,%s,%s,%s);", (sid_send, sid_receive, 0, datetime.now()))
         cur.execute("COMMIT;")
         return True
     finally:
@@ -364,6 +364,21 @@ def getnewmessages(sid1, sid2, mdate):
 
 
 
+
+def get_friend_request(sid1, sid2):
+    cur.execute( """select * from Request where 
+        sid = %s and Friendid = %s;""",(sid1, sid2))
+    return(cur.fetchone())
+
+def is_following(sid, cid):
+    cur.execute( """select * from Follower where 
+        sid = %s and cid = %s;""",(sid, cid))
+    return(cur.fetchone())
+
+def has_applied(aid, sid):
+    cur.execute( """select * from Application where 
+        aid = %s and sid = %s;""",(aid, sid))
+    return(cur.fetchone())
 
 
 
