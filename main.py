@@ -8,7 +8,6 @@ from auth import User
 from functions import *
 
 
-
 '''
 
 TODO:
@@ -69,9 +68,14 @@ def search():
 
 @app.route('/student/<user>')
 def student(user):
-    student_data =  stud(user) # get info for a student
+    student_data = stud(user)  # get info for a student
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
+    print(friends)
+    print(user)
+    print('123')
+    print(current_user)
+    print(user)
     return render_template('pages/student.j2', user=student_data, following=following, friends=friends, title=student_data['sname'])
 
 
@@ -80,7 +84,10 @@ def company(user):
     company_data = com(user)
     followers = listfollowers_company(user)
     jobs = comjobs(user)
+    print(user)
+    print(current_user.username)
     return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, title=company_data['cname'])
+
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
@@ -88,8 +95,9 @@ def job(aid):
     job_data = selectjob(aid)
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
-        status = sendapplication(aid, current_user.id, form.email_phone.data)
-    return render_template('pages/job.j2', job=job_data, aid=aid, form=form, title=job_data['title'])
+        sendapplication(aid, current_user.id, form.email_phone.data)
+        return redirect(url_for('student_edit', user=current_user.username))
+    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form, title=job_data['title'])
 
 
 @app.route('/notifications')
@@ -187,10 +195,22 @@ def register():
 
 
 
+@app.route('/apply/<aid>', methods=['GET', 'POST'])
+def apply(aid=None):
+    thejob_data = _selectjob(aid)
+    form = ApplicationForm(request.form)
+    if request.method == 'POST' and form.validate():
+        #user = User.from_form(form)
+        _sendapplication(aid, current_user.id,timestamp,form.email_phone.data)
+        return redirect(url_for('student_edit', user=current_user.username))
+        #pass #_sendapplication(form.email_phone, current_user,now())
+    return render_template('form/apply.j2', form=form, job = thejob_data, aid = aid)
 
-@app.route('/student/<user>/update', methods=['GET', 'POST'])
+
+
+@app.route('/student/<user>/edit', methods=['GET', 'POST'])
 @login_required
-def student_update(user):
+def student_edit(user):
     student_data = stud(user) # get info for a student
     form = UpdateForm(**student_data)
     if request.method == 'POST' and form.validate():
@@ -200,17 +220,28 @@ def student_update(user):
         print(form.phone.data)
         print(form.email.data)
         print('123')
-    return render_template('form/student_update.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
+    return render_template('form/Updateprofile.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
 
 
-@app.route('/post_job/<user>', methods=['GET', 'POST'])
+@app.route('/company/<user>/edit')
 @login_required
-def post_job(user):
+def company_edit(user):
+    company_data = com(user)
+    return render_template('pages/update_profile.j2', user=company_data)
+
+
+### Post JOB
+@app.route('/post_job', methods=['GET', 'POST'])
+@login_required
+def post_job():
     form = PostJob(request.form)
-    student_data =  stud(user) # get info for a student
     if request.method == 'POST' and form.validate():
-        pass #
-    return render_template('form/job_posting.j2', form=form, user=student_data, title='Post New Job')
+        postjobs(form.aid.data,current_user.id,form.joblocation.data,form.title.data,form.salary.data, form.bk.data, form.description.data)
+        print(current_user)
+
+        return redirect(url_for('company', user=current_user.name))
+
+    return render_template('form/job_posting.j2', form=form, company=current_user)
 
 
 @app.route('/logout')
@@ -235,18 +266,6 @@ def not_found_error(error):
         message="I think you're lost. That sucks."), 404
 
 
-
-# def postjob():
-#     form = PostJob(request.form)
-#     # company_data = com_from_id(user) # get info for a student
-#     if request.method == 'POST' and form.validate():
-#         print(current_user)
-#         print('122')
-#         postjobs(form.phone.data, form.email.data, current_user)
-#         print(form.phone.data)
-#         print(form.email.data)
-#         print('123')
-#     return render_template('form/Updateprofile.j2', form=form, user=company_data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

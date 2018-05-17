@@ -1,9 +1,13 @@
+import time
+import hashlib
 import mysql.connector
-import hashlib, uuid
 from datetime import datetime
+
+generate_id = lambda prefix: '{}{}'.format(prefix, int(time.time()) % 10000)
+
 #connection
-cnx = mysql.connector.connect(user='root', passwd='root',
-                              host='localhost',port='3306',db='love',autocommit=True)
+cnx = mysql.connector.connect(user='root', passwd='new_password',
+                              host='localhost',port='3306',db='love1',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 # cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
 cur = cnx.cursor(dictionary=True)
@@ -11,6 +15,12 @@ cur = cnx.cursor(dictionary=True)
 """
 functions
 """
+salt = 'askjdfhkjashr43iuwq78efbqwuig   7wr83gewguifgiwu3   27eg3e'
+
+#hash password
+def hash_password(password):
+    hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
+    return hashed_password
 
 #Com page
 def com(cname):
@@ -20,6 +30,7 @@ def com(cname):
 def com_from_id(cid):
     cur.execute("select * from company where cid = %s;", (cid,))
     return(cur.fetchone())
+
 
 #df student
 def stud(loginname):
@@ -82,9 +93,8 @@ def selectjob(aid):
 #regis student
 def studentregister(sname, password, loginname):
     try:
-        salt = uuid.uuid4().hex
-        hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
-        cur.execute( "INSERT INTO Student(sname, password, loginname) VALUES (%s, %s, %s);",(sname, hashed_password, loginname))
+        hashed_password = hash_password(password)
+        cur.execute( "INSERT INTO Student(sid,sname, password, loginname) VALUES (%s,%s, %s, %s);",(generate_id('U'), sname, hashed_password, loginname))
         cur.execute("COMMIT;")
 
     finally:
@@ -92,9 +102,8 @@ def studentregister(sname, password, loginname):
 #regis com
 def companyregister(username, password, cname):
     try:
-        salt = uuid.uuid4().hex
-        hashed_password = hashlib.sha512(password + salt).hexdigest()
-        cur.execute( "INSERT INTO Company(username, password, cname) VALUES (%s, %s, %s);",(username, hashed_password, cname))
+        hashed_password = hash_password(password)
+        cur.execute( "INSERT INTO Company(cid, username, password, cname) VALUES (%s,%s, %s, %s);",(generate_id('C'),username, hashed_password, cname))
         cur.execute("COMMIT;")
 
     finally:
@@ -103,8 +112,7 @@ def companyregister(username, password, cname):
 #update profile
 def studentinfo(sid, sname, loginname, phone, email, university, major, GPA, interests, qualifications, privacysetting, Resume):
     try:
-        # salt = uuid.uuid4().hex
-        # hashed_password = hashlib.sha512(password + salt).hexdigest()
+        # hashed_password = hash_password(password)
         cur.execute("""set sql_safe_updates= 0; UPDATE Student 
             set phone = %s, email = %s, university = %s, major = %s, GPA = %s, interests = %s, 
             qualifications = %s, privacy setting = %s, Resume = %s where loginname = %s;""",
@@ -126,11 +134,7 @@ def listfollowers_user(sid):
     finally:
         pass
 
-#hash password
-def hash_password(password):
-    salt = uuid.uuid4().hex
-    hashed_password = hashlib.sha512(password.encode('utf-8') + salt.encode('utf-8')).hexdigest()
-    return hashed_password
+
 
 
 #list friends
@@ -145,6 +149,7 @@ def listfriends(sid):
 
 
 #application
+
 def sendapplication(aid, sid, contacttype):
     try:
         cur.execute( """INSERT INTO Application(aid, sid, atime, contacttype, astatus) VALUES (%s, %s, %s, %s, %s)
@@ -155,9 +160,9 @@ def sendapplication(aid, sid, contacttype):
         pass
     return False
 
-def postjobs(aid, cid, joblocation,title,salary,bk,description,timestamp):
+def postjobs(aid, cid, joblocation,title,salary,bk,description):
     try:
-        cur.execute( "INSERT INTO position (aid, cid, joblocation,title,salary,bk,description,pdate) VALUES (%s,%s, %s, %s,%s, %s, %s, %s);", (aid, cid, joblocation, title, salary, bk, description, timestamp))
+        cur.execute( "INSERT INTO position (aid, cid, joblocation,title,salary,bk,description,pdate) VALUES (%s,%s, %s, %s,%s, %s, %s, %s);", (aid, cid, joblocation, title, salary, bk, description, datetime.now()))
         cur.execute("COMMIT;")
         return True
     finally:
