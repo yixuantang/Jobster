@@ -36,6 +36,11 @@ $(document).ready(function(){
 	});
 
 
+
+
+
+
+
 	function createMessage(who, message, timestamp, status) {
 		var cell = $('<div>').attr('class', 'message-cell ' + who);
     	var message = $('<span>').attr('class', 'message')
@@ -50,38 +55,42 @@ $(document).ready(function(){
 	}
 
 	function getNewMessages() {
-		var placeholder = $('<div>');
-		$('.message-wrap').append(placeholder);
+		var last_timestamp = $('.messages .message:last').data('timestamp');
+		$.get($('.messages').data('get-messages'), {
+			date: last_timestamp
+		}).done(function(data){
+	    	// success!
+			console.log(data);
 
-		$.get($('.messages').data('get-messages'), {})
-	    	.done(function(data){
-		    	// success!
-				console.log(data);
+			if(data.messages) {
+				data.messages.reverse().forEach(function(d){
+					var message = createMessage('you', d.mtext, d.mdate, d.mstatus);
+					$('.message-wrap').append(message);
+				})
 
-				if(data.messages) {
-					data.messages.reverse().forEach(function(d){
-						var message = createMessage('you', d.mtext, d.mtime, d.mstatus);
-						$(placeholder).after(message);
-					})
-					placeholder.remove();
-				}
-			})
+				sortMessages();
+				keepAtBottom();
+			}
+		})
+	}
+
+
+	function sortMessages() {
+		$('.messages-wrap').sort(function(a, b) {
+			return $(a).find('.message').data('timestamp') > $(b).find('.message').data('timestamp');
+		}).appendTo('.messages-wrap');
 	}
 
 
 	$('.new-message').on('keyup', function(e){
-	    if(e.keyCode == 13) { // on enter key
-	    	var timestamp = $(this).closest('.messages').select('.message:last').data('timestamp');
-
-
+	    if(e.keyCode == 13 && $(this).val() != '') { // on enter key
 	    	getNewMessages();
 	    	var my_message = createMessage('me', $(this).val());
 	        $('.message-wrap').append(my_message);
-
+	        keepAtBottom();
 
 	        $.post($(this).data('send-url'), {
-	        	message: $(this).val(),
-	        	timestamp: timestamp
+	        	message: $(this).val()
 	        }, function(data){
 				
 			})
@@ -90,15 +99,40 @@ $(document).ready(function(){
 	    }
 	});
 
+	// get new messages when refresh is clicked
 	$('.messages .refresh').on('click', function(){
 		getNewMessages();
+	});
+
+	// mark as read when the messages box (the entire messages section) is clicked
+	$('.messages').on('click', function(){
+		$(this).find('.messages.unread').each(function(){
+			$this = $(this);
+			$.post($(this).data('mark-read')).done(function(){
+				$this.removeClass('unread');
+			})
+		})
 	})
 
+	// get new nessages every 10 seconds
+	// setTimeout(function(){
+	// 	getNewMessages();
+	// }, 10000)
 
-	setTimeout(function(){
-		getNewMessages();
-	}, 15000)
+	// keep messages scrolled to bottom
+	function keepAtBottom() {
+		if(stick) 
+			$('.messages .double-wrap').scrollTop($('.double-wrap')[0].scrollHeight);
+	}
 
+	// 
+	var stick = true;
+	keepAtBottom()
+	$('.messages .double-wrap').on('scroll', function(){
+		stick = $('.messages .double-wrap').scrollTop() + $('.messages .double-wrap').height() > $('.messages .message-wrap').height() - 10;
+
+		keepAtBottom();
+	})
 
 
 })

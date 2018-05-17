@@ -55,15 +55,20 @@
 {% if current_user.id != user.sid and current_user.type == 'student' %}
 	<section class='box messages' data-get-messages="{{ url_for('get_messages', sid=user.sid) }}">
 		<h3>Messages <span class='refresh'>refresh</span></h3>
+		<div class='double-wrap'>
 		<div class='message-wrap'>
 		{% for msg in messages %}
+			{% if msg.mtext %}
 			<div class="message-cell {{ 'me' if current_user.id == msg.sid1 else 'you' }}">
 				<span class="message {{ 'unread' if msg.mstatus and current_user.id == msg.sid1 }}" 
-						title="{{ msg.mdate }}" data-timestamp="{{ msg.mdate }}">
+						title="{{ msg.mdate }}" data-timestamp="{{ msg.mdate }}"
+						data-mark-read="{{ url_for('read_message', sid=user.sid, date=msg.mdate) }}">
 					{{ msg.mtext }}
 				</span>
 			</div>
+			{% endif %}
 		{% endfor %}
+		</div>
 		</div>
 		<input type='text' class='new-message' name='messages' placeholder="message..."
 				data-send-url="{{ url_for('send_message', sid=user.sid) }}" />

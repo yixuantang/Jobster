@@ -32,7 +32,13 @@ app.config.update(dict(
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-login_manager.user_loader(lambda id: User.from_id(id, type='student' if id.startswith('U') else 'company'))
+
+@login_manager.user_loader
+def load_user_from_id(id):
+    try:
+        return User.from_id(id, type='student' if id.startswith('U') else 'company')
+    except:
+        return None
 
 
 @app.context_processor
@@ -73,22 +79,18 @@ def student(user):
     student_data = stud(user)  # get info for a student
     following = listfollowers_user(student_data['sid'])
     friends = listfriends(student_data['sid'])
-    print(friends)
-    print(user)
-    print('123')
-    print(current_user)
-    print(user)
 
-    messages = [
-        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='Hi', mdate=datetime.now() - timedelta(minutes=25), mstatus=1),
-        dict(sid1=student_data['sid'], sid2=current_user.id, mtext='Hello', mdate=datetime.now() - timedelta(minutes=20), mstatus=1),
-        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='yo', mdate=datetime.now() - timedelta(minutes=15), mstatus=1),
-        dict(sid1=student_data['sid'], sid2=current_user.id, mtext="you're beautiful", mdate=datetime.now() - timedelta(minutes=10), mstatus=1),
-        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='thanks man', mdate=datetime.now() - timedelta(minutes=5), mstatus=1),
-        dict(sid1=student_data['sid'], sid2=current_user.id, mtext='poop', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
-        dict(sid1=current_user.id, sid2=student_data['sid'], mtext='lol', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
-    ]
-
+    # messages = [
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='Hi', mdate=datetime.now() - timedelta(minutes=25), mstatus=1),
+    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='Hello', mdate=datetime.now() - timedelta(minutes=20), mstatus=1),
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='yo', mdate=datetime.now() - timedelta(minutes=15), mstatus=1),
+    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext="you're beautiful", mdate=datetime.now() - timedelta(minutes=10), mstatus=1),
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='thanks man', mdate=datetime.now() - timedelta(minutes=5), mstatus=1),
+    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='poop', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
+    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='lol', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
+    # ]
+    messages = getmessages(current_user.id, student_data['sid'])
+    print(messages)
     return render_template('pages/student.j2', user=student_data, following=following, friends=friends, messages=messages, title=student_data['sname'])
 
 
@@ -161,32 +163,48 @@ def apply(aid, contact_by):
     })
 
 
-@app.route('/send_message/<sid>', methods=['POST'])
+@app.route('/message/<sid>/send', methods=['POST'])
 @login_required
 def send_message(sid):
     status = False
     timestamp = datetime.now()
     message = request.form.get('message')
+
     if message:
-        status = True#sendmessage(current_user.id, sid, message, timestamp)
+        status = sendmessage(current_user.id, sid, message, timestamp)
+        sendmessage(sid, current_user.id, 'cool', datetime.now())
     return jsonify({
         'success': status
     })
 
-@app.route('/get_messages/<sid>')
+@app.route('/messages/<sid>/get')
 @login_required
 def get_messages(sid):
     date = request.args.get('date')
-    messages = [
-        dict(sid1=sid, sid2=current_user.id, mtext='Hi', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
-        dict(sid1=sid, sid2=current_user.id, mtext='Hooopla', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
-    ]
-
-    # messages = get_messages()
+    messages = getnewmessages(sid, current_user.id, date)
     return jsonify({
         # 'success': status,
         'messages': messages
     })
+
+@app.route('/messages/<sid>/all')
+@login_required
+def get_all_messages(sid):
+    messages = getmessages(sid, current_user.id)
+    return jsonify({
+        # 'success': status,
+        'messages': messages
+    })
+
+
+@app.route('/message/<sid>/read/<date>', methods=['POST'])
+@login_required
+def read_message(sid, date):
+    status = markreadmessage(current_user.id, sid, date)
+    return jsonify({
+        'success': status
+    })
+
 
 '''
 
