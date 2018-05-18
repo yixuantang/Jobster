@@ -13,15 +13,15 @@
 <ul class="actions">
 	{% block actions %}
 
+
 	{% if current_user.username == company.cname %}
 		<li><a class='button' href="{{ url_for('post_job', user=company.cid) }}">Post New Job</a></li>
-	{% elif current_user.type == 'student' %}
-		<li><a class='button action follow-com' href="{{ url_for('follow', user=company.cid) }}" 
-			data-success='Followed!'
-			data-state="{{ 'success' if im_following }}"
-			>Follow</a></li>
+		<li><a class='button edit-profile' href="{{ url_for('company_edit', user=company.cname) }}">Edit Profile</a></li>
+	{% else %}
+		<li><a class='button action follow-com' href="{{ url_for('follow', user=company.cid) }}" data-success='Followed!'>Follow</a></li>
 	{% endif %}
-	
+
+
 	{% endblock %}
 </ul>
 
@@ -29,11 +29,9 @@
 {% block followers %}
 <section class='box'>
 	<h3>Followers</h3>
-	<ul class='alt'>
+	<ul>
 	{% for follower in followers %}
-		<li><a href="{{ url_for('student', user=follower.uid) }}">{{ follower.name }}</a> - {{ follower.school }}</li>
-	{% else %}
-		<li>No Followers (~_~)</li>
+		<li><a href="{{ url_for('student', user=follower.loginname) }}">{{ follower.sname }}</a> - {{ follower.school }}</li>
 	{% endfor %}
 	</ul>
 </section>
@@ -42,14 +40,29 @@
 {% block jobs %}
 <section class='box'>
 	<h3>Jobs</h3>
-	<ul class='alt'>
+	<ul>
 	{% for job in jobs %}  {# cname or name ? #}
 		<li>{{ job.aid }} {{ job.title }} - {{ job.cname }} {{ job.name }} <a href="{{ url_for('job', aid=job.aid) }}">Details</a></li>
-	{% else %}
-		<li>No jobs, yet!</li>
 	{% endfor %}
 	</ul>
 </section>
 {% endblock %}
+
+{% if current_user.username == company.cname %}
+{% block applications %}
+<section class='box'>
+	<h3>Applications</h3>
+	<ul class='alt'>
+	{% for application in applications_com %}
+	{% if application.astatus == 'pending' %}
+		<li>{{ application.title }} - candidate: {{application.sid}} <a href="{{ url_for('candidate', user=application.loginname, job=application.aid) }}">Details</a></li>
+	{% endif %}
+	{% else %}
+		<li>No Application Yet. (._.)</li>
+	{% endfor %}
+	</ul>
+</section>
+{% endblock %}
+{% endif %}
 
 {% endblock %}

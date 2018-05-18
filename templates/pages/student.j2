@@ -5,8 +5,13 @@
 
 {% block content %}
 
+
 <h2>{{ user.sname }}</h2>
-<p>{{ user.university }} - GPA: {{ user.GPA }}</p>
+{% if user['privacysetting'] == 'public' %}
+<h4>{{ user.university }} - GPA: {{ user.GPA }}</h4>
+<p>{{ user.major }} - {{user.qualifications}} </p>
+<p>Interests: {{ user.interests }}</p>
+{% endif %}
 
 <ul class='actions'>
 	{% block actions %}
@@ -17,12 +22,8 @@
 	{% if current_user.username == user.loginname %}
 		<li><a class='button edit-profile' href="{{ url_for('student_edit', user=user.loginname) }}">Edit Profile</a></li>
 	{% elif current_user.type == 'student' %}
-		<li><a class='button action friend-request' href="{{ url_for('friend_request', user=user.sid) }}" 
-				data-pending="Request Sent!"
-				data-accepted="Friends :)"
-				data-next='pending'
-				data-state="{{ friend_request.status }}"
-				>Friend Request</a></li>
+		<li><a class='button action friend-request' href="{{ url_for('friend_request', user=user.sid) }}"
+				data-success="Request Sent!">Friend Request</a></li>
 	{% endif %}
 	{% endblock %}
 </ul>
@@ -53,25 +54,20 @@
 </section>
 {% endblock %}
 
+{% if current_user.username == user.loginname %}
 {% block applications %}
-
-{% if current_user.id == user.sid %}
 <section class='box'>
-	<h3>Applications</h3>
+	<h3>My Application</h3>
 	<ul class='alt'>
-	{% for app in applications|reverse %}
-		<li>
-			<h4><a href="{{ url_for('job', aid=app.aid) }}">{{ app.title }}</a> ({{ 'pending' if app.astatus == 0 else 'approved!' }})</h4>
-			<p><a href="{{ url_for('company', user=app.cname) }}">{{ app.cname }}</a> - {{ app.location }} - ${{ app.salary }}</p>
-		</li>
+	{% for application in applications %}
+		<li>{{ application.title }} - status: {{application.astatus}}</li>
 	{% else %}
-		<li>I haven't applied yet!</li>
+		<li>No one following. (._.)</li>
 	{% endfor %}
 	</ul>
 </section>
-{% endif %}
-
 {% endblock %}
+{% endif %}
 
 {% block messages %}
 
@@ -83,7 +79,7 @@
 		{% for msg in messages %}
 			{% if msg.mtext %}
 			<div class="message-cell {{ 'me' if current_user.id == msg.sid1 else 'you' }}">
-				<span class="message {{ 'unread' if msg.mstatus and current_user.id == msg.sid1 }}" 
+				<span class="message {{ 'unread' if msg.mstatus and current_user.id == msg.sid1 }}"
 						title="{{ msg.mdate }}" data-timestamp="{{ msg.mdate }}"
 						data-mark-read="{{ url_for('read_message', sid=user.sid, date=msg.mdate) }}">
 					{{ msg.mtext }}

@@ -1,8 +1,8 @@
 {% extends 'layouts/form.j2' %}
 
 {% block header %}
-	<h2>Post New {{ user.cname }} Job</h2>
-	<p> :D </p>
+	<h2>Update {{ user.cname }} profile</h2>
+	<p>Show us that ambition :D</p>
 {% endblock %}
 
 {% block form %}
@@ -11,11 +11,10 @@
     {{ form.hidden_tag() }}
 	<div class="row uniform 50%">
 		<div class="12u">
-			{{ form.title(placeholder='Title') }}
-            {{ form.salary(placeholder='Salary') }}
-            {{ form.joblocation(placeholder='Job location') }}
-            {{ form.bk(placeholder='Background requirement') }}
-            {{ form.description(placeholder='Detailed description')}}
+			{{ form.location(placeholder='Your location') }}
+            {{ form.industry(placeholder='Your industry') }}
+
+
 		</div>
 	</div>
 	<div class="row uniform">

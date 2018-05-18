@@ -10,6 +10,7 @@
     <h2><i class='idno'>{{ job.aid }}</i> {{ job.title }} - {{ job.cname }}</h2>
     <h3>${{ job.salary }} - <b>location:</b> {{ job.joblocation }} </h3>
     <h4><b>Jobs Requirement:</b> {{ job.bk }}</h4>
+    {% if "C" not in current_user.id %}
     <form method="post">
         {{ form.hidden_tag() }}
         <div class="row uniform 50%">
@@ -17,9 +18,10 @@
                 {{ form.email_phone(placeholder='Contact via') }}
             </div>
             <div class="6u">
-                {{ form.submit(class_=('special' if sent_application else ''), value=('Applied!' if sent_application else 'Apply')) }}
+                {{ form.submit() }}
             </div>
         </div>
     </form>
+    {% endif %}
 
 {% endblock %}

@@ -6,8 +6,8 @@ from datetime import datetime
 generate_id = lambda prefix: '{}{}'.format(prefix, int(time.time()) % 10000)
 
 #connection
-cnx = mysql.connector.connect(user='root', passwd='root',
-                              host='localhost',port='3306',db='love',autocommit=True)
+cnx = mysql.connector.connect(user='root', passwd='new_password',
+                              host='localhost',port='3306',db='love1',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
 cur = cnx.cursor(dictionary=True, buffered=True)
@@ -56,6 +56,9 @@ def listfollowers_company(cid):
     finally:
         pass
 
+def add_request(sid):
+    cur.execute("select * from request r join student s where r.Friendid = %s and s.sid = r.sid;", (sid,))
+    return(cur.fetchall())
 
 #jobs #df
 def comjobs(cid):
@@ -123,80 +126,6 @@ def studentinfo(sid, sname, loginname, phone, email, university, major, GPA, int
     finally:
         pass
 
-
-# def updateprofile(phone,email,sid):
-#     cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;"%(phone, email, sid), multi=True)
-#     cnx.commit()
-
-# def updateprofile(phone,email,sid):
-#     try:
-#         cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;", (phone, email, sid),multi=True)
-#         # cur.execute("COMMIT;") #% %
-#         return True
-#     finally:
-#         pass
-#     return False
-
-
-#~ ~
-# def updateprofile(phone,email,sid):
-#     try:
-#         cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;"%(phone, email, sid),multi=True)
-#         # cur.execute("COMMIT;")
-#         return True
-#     finally:
-#         pass
-#     return False
-#la la
-# def updateprofile(phone,email,sid):
-#     try:
-#         cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;"%(phone, email, sid),multi=True)
-#         cur.execute("COMMIT;")
-#         return True
-#     finally:
-#         pass
-#     return False
-
-#09 09
-# def updateprofile(phone,email,sid):
-#     try:
-#         cur.execute("UPDATE Student set phone = %s, email = %s where sid = %s;"%(phone, email, sid),multi=True)
-#         cur.execute("COMMIT;")
-#         return True
-#     finally:
-#         pass
-#     return False
-
-#q q
-# def updateprofile(phone,email,sid):
-#     cur = cnx.cursor()
-#     cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = '%s', email = '%s' where sid = '%s';", (phone,email,sid),multi=True)
-#     cnx.commit()
-#
-#+ +
-# def updateprofile(phone,email,sid):
-#     cur = cnx.cursor()
-#     cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = '%s', email = '%s' where sid = '%s';",(phone,email,sid),multi=True)
-#     cnx.commit()
-
-# pizza pizaa
-# def updateprofile(phone,email,sid):
-#     try:
-#         cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;",(phone, email, sid),multi=True)
-#         # cur.execute("COMMIT;")
-#         return True
-#     finally:
-#         pass
-
-# #love e
-# def updateprofile(phone,email,sid):
-#     try:
-#         cur.execute("set sql_safe_updates = 0;UPDATE Student set phone = %s, email = %s where sid = %s;", (phone, email, sid),multi=True)
-#         cur.execute("COMMIT;")
-#         return True
-#     finally:
-#         pass
-
 #lol lol
 def updateprofile(phone,email,university,GPA,major,interests,qualification,privacysetting,sid):
     try:
@@ -234,7 +163,7 @@ def listapplications(sid):
 #list received applications
 def listapplications_com(cid):
     try:
-        cur.execute("""select p.aid, p.title, a.sid, a.astatus, s.sname from application a join position p join student s where p.aid = a.aid and a.sid = s.sid and p.cid = %s;""", (cid,))
+        cur.execute("""select p.aid, p.title, a.sid, a.astatus, s.sname,s.loginname from application a join position p join student s where p.aid = a.aid and a.sid = s.sid and p.cid = %s;""", (cid,))
         return(cur.fetchall())
     finally:
         pass
@@ -309,18 +238,18 @@ def send_friend_request(sid_send, sid_receive):
         pass
     return False
 
-def accept_friend_request(sid_receive, sid_send):
+def accept_friend_request(sid_send,sid_receive):
     try:
-        cur.execute("UPDATE Request SET nstatus = '1' WHERE sid = %s AND Friendid = %s;", (sid_receive, sid_send))
+        cur.execute("UPDATE Request SET status = 'accepted' WHERE sid = %s AND Friendid = %s;", (sid_send,sid_receive))
         cur.execute("COMMIT;")
         return True
     finally:
         pass
     return False
 
-def reject_friend_request(sid_receive, sid_send):
+def reject_friend_request(sid_send,sid_receive):
     try:
-        cur.execute( "DELETE FROM Request WHERE sid = %s AND Friendid = %s;", (sid_send, sid_receive))
+        cur.execute( "UPDATE Request SET status = 'rejected' WHERE sid = %s AND Friendid = %s;", (sid_send,sid_receive))
         cur.execute("COMMIT;")
         return True
     finally:
@@ -328,6 +257,23 @@ def reject_friend_request(sid_receive, sid_send):
 
 
 
+def Application_suc(sid_receive,aid):
+    try:
+        cur.execute("UPDATE application SET astatus = 'accepted' WHERE sid = %s and aid = %s;", (sid_receive,aid))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        pass
+    return False
+
+def Application_fail(sid_receive,aid):
+    try:
+        cur.execute("UPDATE application SET astatus = 'rejected' WHERE sid = %s and aid = %s;", (sid_receive,aid))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        pass
+    return False
 
 
 
@@ -394,9 +340,8 @@ def search_jobs(keyword):
 
 def search_student(keyword):
     kw_like = '%' + keyword + '%'
-    cur.execute("select s.sname, s.sid from Student s where (s.sname like %s or s.interests like %s  or s.qualifications like %s or s.major like %s or s.university like %s);", (kw_like, kw_like, kw_like, kw_like, kw_like))
+    cur.execute("select s.sname, s.loginname, s.sid from Student s where (s.sname like %s or s.interests like %s  or s.qualifications like %s or s.major like %s or s.university like %s);", (kw_like, kw_like, kw_like, kw_like, kw_like))
     return(cur.fetchall())
-
 
 
 # def search_results(query):

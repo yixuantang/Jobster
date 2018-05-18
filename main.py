@@ -77,34 +77,62 @@ def search():
 
 ##### You can remove this once the messages query is working. it's just for creating fake messages
 from datetime import datetime, timedelta
+#Ben
+# @app.route('/student/<user>')
+# def student(user):
+#     student_data = stud(user) # get info for a student
+#     friends = listfriends(student_data['sid'])
+#     friend_ids = [f['sid'] for f in friends]
+#     if student_data['privacysetting'] == 'friendly public' and (not current_user.is_authenticated or current_user.id in friend_ids):
+#         return redirect(url_for('not_found_error'))
+#
+#     following = listfollowers_user(student_data['sid'])
+#     applications = listapplications(student_data['sid'])
+#
+#     messages = getmessages(current_user.id, student_data['sid']) if current_user.is_authenticated else None
+#     friend_request = get_friend_request(current_user.id, student_data['sid']) if current_user.is_authenticated else None
+#     return render_template('pages/student.j2', user=student_data, following=following, friends=friends,
+#         applications=applications, messages=messages, friend_request=friend_request, title=student_data['sname'])
 
 @app.route('/student/<user>')
 def student(user):
-    student_data = stud(user) # get info for a student
-    friends = listfriends(student_data['sid'])
-    friend_ids = [f['sid'] for f in friends]
-    if student_data['privacysetting'] == 'friendly public' and (not current_user.is_authenticated or current_user.id in friend_ids):
-        return redirect(url_for('not_found_error'))
-
+    student_data =  stud(user) # get info for a student
     following = listfollowers_user(student_data['sid'])
+    friends = listfriends(student_data['sid'])
     applications = listapplications(student_data['sid'])
-    
+    print(applications)
+    print(student_data['privacysetting'])
+    print(student_data['sid'])
+    print(friends)
+    # messages = getmessages(current_user.id, student_data['sid'])
     messages = getmessages(current_user.id, student_data['sid']) if current_user.is_authenticated else None
-    friend_request = get_friend_request(current_user.id, student_data['sid']) if current_user.is_authenticated else None
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, 
-        applications=applications, messages=messages, friend_request=friend_request, title=student_data['sname'])
+    print(messages)
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications, messages=messages, title=student_data['sname'])
 
 
+
+
+# @app.route('/company/<user>')
+# def company(user):
+#     company_data = com(user)
+#     followers = listfollowers_company(user)
+#     jobs = comjobs(company_data['cid'])
+#     applications_com = listapplications_com(company_data['cid'])
+#     im_following = is_following(current_user.id, company_data['cid']) if current_user.is_authenticated else None
+#     return render_template('pages/company.j2', company=company_data, followers=followers,
+#         jobs=jobs, applications_com=applications_com, im_following=im_following, title=company_data['cname'])
 
 @app.route('/company/<user>')
 def company(user):
     company_data = com(user)
-    followers = listfollowers_company(user)
+    followers = listfollowers_company(company_data['cid'])
     jobs = comjobs(company_data['cid'])
     applications_com = listapplications_com(company_data['cid'])
-    im_following = is_following(current_user.id, company_data['cid']) if current_user.is_authenticated else None
-    return render_template('pages/company.j2', company=company_data, followers=followers, 
-        jobs=jobs, applications_com=applications_com, im_following=im_following, title=company_data['cname'])
+    print(company_data['cname'])
+    print('123')
+    print(user)
+    print(followers)
+    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com=applications_com, title=company_data['cname'])
 
 
 
@@ -121,12 +149,17 @@ def job(aid):
 
 
 
+# @app.route('/notifications')
+# @login_required
+# def notifications():
+#     Noti_data = add_notification(current_user.id)
+#     return render_template('pages/notification.j2', notifs=Noti_data, user=current_user, title='Notifications')
 @app.route('/notifications')
 @login_required
 def notifications():
     Noti_data = add_notification(current_user.id)
-    return render_template('pages/notification.j2', notifs=Noti_data, user=current_user, title='Notifications')
-
+    Re_data = add_request(current_user.id)
+    return render_template('pages/notification.j2', notifs=Noti_data, requests = Re_data, user=current_user, title='Notifications')
 
 
 
@@ -157,6 +190,35 @@ def friend_request(user):
     return jsonify({
         'success': status
     })
+
+@app.route('/student/<user>/accfri',methods = ['POST'])
+@login_required
+def acc_frirequest(user):
+    Noti_data = add_notification(current_user.id)
+    Re_data = add_request(current_user.id)
+    if request.method == 'POST':
+        accept_friend_request(user,current_user.id)
+        print(user)
+        print(current_user.id)
+        print(datetime.now())
+    return render_template('pages/notification.j2', notifs=Noti_data, requests = Re_data, user=current_user, title='Notifications')
+
+#
+@app.route('/student/<user>/rejfri',methods = ['POST'])
+@login_required
+def Rej_frirequest(user):
+    Noti_data = add_notification(current_user.id)
+    Re_data = add_request(current_user.id)
+    if request.method == 'POST':
+        reject_friend_request(user,current_user.id)
+        print(user)
+        print('123')
+        print(current_user.id)
+        print(datetime.now())
+    return render_template('pages/notification.j2', notifs=Noti_data, requests = Re_data, user=current_user, title='Notifications')
+
+
+
 
 @app.route('/apply/<aid>/<contact_by>', methods=['POST'])
 @login_required
@@ -268,6 +330,7 @@ def student_edit(user):
                         form.interest.data, form.qualifications.data, form.privacysetting.data, current_user.id)
         print(current_user.id)
         print(form.email.data)
+        return redirect(url_for('student', user=current_user.username))
     return render_template('form/student_update.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
 
 
@@ -283,6 +346,7 @@ def company_edit(user):
         updateprofile_com(form.location.data, form.industry.data, current_user.id)
         print(current_user.id)
         print(form.location.data)
+        return redirect(url_for('company', user=company_data['username']))
     return render_template('form/company_update.j2', form=form, user=company_data)
 
 
@@ -295,19 +359,41 @@ def post_job(user):
         postjobs(current_user.id,form.joblocation.data,form.title.data,form.salary.data, form.bk.data, form.description.data)
         return redirect(url_for('company', user=company_data['username']))
         print(company_data['location'])
-    return render_template('form/job_posting.j2', form=form, company=company_data)
+        print("99")
+    return render_template('form/job_posting.j2', form=form, user=company_data)
 
-@app.route('/candidate/<user>')
-def candidate(user):
+@app.route('/candidate/<user>/<job>')
+def candidate(user,job):
     candidate_data =  stud(user) # get info for a student
+    # print(candidate_data['sid'])
     following = listfollowers_user(candidate_data['sid'])
     friends = listfriends(candidate_data['sid'])
-    applications = listapplications(candidate_data['sid'])
-    print(applications)
+    job = job
+    print(user)
     print(candidate_data)
-    print(candidate_data['sid'])
-    print(friends)
-    return render_template('pages/candidate.j2', user=candidate_data, following=following, friends=friends, applications=applications)
+    # print(candidate_data['sid'])
+    # print(friends)
+    return render_template('pages/candidate.j2', user=candidate_data, job = job, friends = friends, following = following)
+
+@app.route('/Application_suc/<user>/<job>', methods=['POST'])
+@login_required
+def decision(user,job):
+    status = Application_suc(user, job)
+    print(user)
+    print(job)
+    return jsonify({
+        'success': status
+    })
+
+@app.route('/Application_fail/<user>/<job>', methods=['POST'])
+@login_required
+def decision_fail(user,job):
+    status = Application_fail(user, job)
+    print(user)
+    print(job)
+    return jsonify({
+        'success': status
+    })
 
 
 
@@ -337,4 +423,4 @@ def not_found_error(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5003)
