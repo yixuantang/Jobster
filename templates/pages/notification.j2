@@ -4,7 +4,7 @@
 {% block banner %}{% endblock %}
 
 {% block content %}
-	
+
     <ul>
     {% for n in notifs %}
     	<section class="box notification {{ 'unread' if not n.nstatus }}">
@@ -13,6 +13,26 @@
 			<p><b>Salary:</b> {{ n.salary }}</p>
 			<p><b>Date:</b> {{ n.ndate.strftime('%m/%d/%Y %H:%M:%S') }}</p>
 			<p><b>Location:</b> {{ n.joblocation }}</p>
+    	</section>
+	{% else %}
+		<section class='box'>
+			<h3>No notifications</h3>
+			<p>You'll get some soon enough!</p>
+		</section>
+    {% endfor %}
+    {% for n in requests %}
+    	<section class="box notification">
+    		<h3><a href="{{ url_for('student', user=n.loginname) }}">{{ n.sname }} - Friend request</a></h3>
+			<p><b>Request Date:</b> {{ n.rdate.strftime('%m/%d/%Y %H:%M:%S') }}</p>
+            <p><b>Request Status:</b> {{ n.status }}</p>
+	{% if n.status == 'pending' %}
+	    <li><a class='button action friend-request' href="{{ url_for('acc_frirequest', user=n.sid) }}"
+				data-success="Decision Sent!">Accept</a></li>
+	    <li><a class='button action friend-request' href="{{ url_for('Rej_frirequest', user=n.sid) }}"
+				data-success="Decision Sent!">Reject</a></li>
+    {% endif %}
+
+
     	</section>
 	{% else %}
 		<section class='box'>

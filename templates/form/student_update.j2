@@ -11,12 +11,15 @@
     {{ form.hidden_tag() }}
 	<div class="row uniform 50%">
 		<div class="12u">
-			{{ form.email(placeholder='Your email') }}
-            {{ form.phone(placeholder='Your phone') }}
-            {{ form.GPA(placeholder='Your GPA') }}
-            {{ form.university(placeholder='Your university') }}
-            {{ form.qualifications(placeholder='Your qualifications') }}
-            {{ form.privacysetting(placeholder='Public or Friendly Public') }}
+			<p>Email:</p>{{ form.email(placeholder=user.email) }}
+            <p>Phone:</p>{{ form.phone(placeholder=user.phone) }}
+            <p>Major:</p>{{ form.major(placeholder=user.major) }}
+            <p>GPA:</p>{{ form.GPA(placeholder=user.GPA) }}
+            <p>University:</p>{{ form.university(placeholder=user.university) }}
+            <p>qualifications:</p>{{ form.qualifications(placeholder=user.qualifications) }}
+            <p>Interests:</p>{{ form.interest(placeholder=user.interests) }}
+            <p>Resume:</p>{{ form.resume(placeholder='ur resume') }}
+            <p>Privacy Setting:</p>{{ form.privacysetting(placeholder='Public or Friendly Public') }}
 		</div>
 	</div>
 	<div class="row uniform">

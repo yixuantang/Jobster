@@ -1,0 +1,60 @@
+{% extends 'layouts/base.j2' %}
+
+{# removes banner #}
+{% block banner %}{% endblock %}
+
+{% block content %}
+
+<h2>Candidate: {{ user.sname }}</h2>
+{% if user['privacysetting'] == 'public' %}
+<h4>{{ user.university }} - GPA: {{ user.GPA }}</h4>
+<p>{{ user.major }} - {{user.qualifications}} </p>
+<p>Interests: {{ user.interests }}</p>
+{% endif %}
+
+<ul class='actions'>
+	{% block actions %}
+	{% if user.resume %}
+		<li><a title="Download Resume" class='button special' download="resume.pdf" href="data:application/pdf;base64,{{ user.Resume }}">Download Resume</a></li>
+	{% endif %}
+	{% if current_user.username != user.loginname %}
+	    <li><a class='button action friend-request' href="{{ url_for('decision', user=user.sid, job=job) }}"
+				data-success="Decision Sent!">Approve</a></li> <li><a class='button action friend-request' href="{{ url_for('decision_fail', user=user.sid, job=job) }}"
+				data-success="Decision Sent!">Decline</a></li>
+	{% endif %}
+
+	{% if current_user.username == user.loginname %}
+		<li><a class='button edit-profile' href="{{ url_for('student_update', user=user.loginname) }}">Edit Profile</a></li>
+	{% endif %}
+
+	{% endblock %}
+</ul>
+
+{% block friends %}
+<section class='box'>
+	<h3>Friends</h3>
+	<ul class='alt'>
+	{% for friend in friends %}
+		<li>{{ friend.name }} - {{ friend.school }}</li>
+		<li><a href="{{ url_for('student', user=friend.loginname) }}">{{ friend.sname }}</a> </li>
+	{% else %}
+		<li>No Friends (~_~)</li>
+	{% endfor %}
+	</ul>
+</section>
+{% endblock %}
+
+{% block following %}
+<section class='box'>
+	<h3>Following</h3>
+	<ul class='alt'>
+	{% for follower in following %}
+		<li><a href="{{ url_for('company', user=follower.cname) }}">{{ follower.cname }}</a></li>
+	{% else %}
+		<li>No one following. (._.)</li>
+	{% endfor %}
+	</ul>
+</section>
+{% endblock %}
+
+{% endblock %}
