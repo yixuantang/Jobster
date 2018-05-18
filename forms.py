@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, RadioField, SelectField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, RadioField, BooleanField, SubmitField
 from wtforms import validators as v, ValidationError
 
 '''
@@ -29,6 +29,22 @@ class RegistrationForm(FlaskForm):
 
 
 class ApplicationForm(FlaskForm):
+<<<<<<< HEAD
+	email_phone = StringField("Email/Phone")
+	submit = SubmitField("Apply")
+
+class UpdateForm(FlaskForm):
+	phone = StringField("your phone")
+	email = StringField("your email")
+	university = StringField("your university")
+	GPA = StringField("your GPA")
+	major = StringField("your major")
+	interests = StringField("your interest")
+	qualifications = StringField("your qualifications")
+	privacy_setting = StringField("your qualifications")
+	#privacy_setting = RadioField("your privacy setting", [('public', 'Public'), ('friendly public', 'Friends')])
+	# resume = StringField("your university")
+=======
     email_phone = SelectField("Contact via", choices=[('email', 'Email'), ('phone', 'Phone')])
     submit = SubmitField("Apply")
 
@@ -48,18 +64,32 @@ class UpdateForm(FlaskForm):
 class UpdateForm_com(FlaskForm):
 	location = StringField("company location")
 	industry = StringField("company industry")
+>>>>>>> 61a13e913cdc05d5e0d2365cce56fadd6c2dea7a
+	submit = SubmitField("Update")
+
+class UpdateForm_com(FlaskForm):
+	location = StringField("company location")
+	industry = StringField("company industry")
 	submit = SubmitField("Update")
 
 class PostJob(FlaskForm):
+<<<<<<< HEAD
+	aid = StringField("aid")
+	joblocation = StringField("job location")
+	title = StringField("job title")
+	salary = StringField("salary")
+	bk = StringField("back ground requirment")
+	description = StringField("detailed description")
+	submit = SubmitField("Post")
+=======
     joblocation = StringField("Job location")
     title = StringField("job title")
     salary = StringField("salary")
     bk = StringField("Background requirement")
     description = StringField("Details")
     submit = SubmitField("Post")
+>>>>>>> 61a13e913cdc05d5e0d2365cce56fadd6c2dea7a
 
 class SearchForm(FlaskForm):
-	class Meta:
-		csrf = True
 	query = StringField("Search")
 	submit = SubmitField("Search")
