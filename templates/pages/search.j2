@@ -15,22 +15,49 @@
 	</form>
 </section>
 
-{% for result in search_results %}
+{% if students|length or companies|length %}
+	
+	{% if students|length %}
 	<section class='box'>
-		{% if result.type == 'student' %}
-			<h2>{{ result.sname }}</h2>
-			<h4>{{ result.university }}</h4>
-		{% elif result.type == 'company' %}
-			<h2>{{ result.cname }}</h2>
-			<h4>{{ result.university }}</h4>
-		{% elif result.type == 'job' %}
-			<h2>{{ result.title }}</h2>
-			<h4>{{ result.university }}</h4>
-		{% endif %}
+		<h2>Students</h2>
+		<ul class='alt'>
+		{% for result in students %}
+			<li><a href="{{ url_for('student', user=result.loginname) }}">{{ result.sname }}</a> - {{ result.university }}</li>
+		{% endfor %}
+		</ul>
 	</section>
-{% else %}
+	{% endif %}
+
+	{% if jobs|length %}
+	<section class='box'>
+		<h2>Jobs</h2>
+		<ul class='alt'>
+		{% for result in jobs %}
+			<li>
+				<a href="{{ url_for('job', aid=result.aid) }}">{{ result.title }}</a> - <a href="{{ url_for('company', user=result.cname) }}">{{ result.cname }}</a> {{ result.location }} <br />
+				{{ result.description }}
+			</li>
+		{% endfor %}
+		</ul>
+	</section>
+	{% endif %}
+
+	{% if companies|length %}
+	<section class='box'>
+		<h2>Companies</h2>
+		<ul class='alt'>
+		{% for result in companies %}
+			<li>
+				<a href="{{ url_for('company', user=result.cname) }}">{{ result.cname }}</a>, {{ result.location }}, {{ result.industry }}
+			</li>
+		{% endfor %}
+		</ul>
+	</section>
+	{% endif %}
+
+{% elif search_form.query.data %}
 	<section class='box'>
 		<h2>No results for "{{ search_form.query.data or '' }}".</h2>
 	</section>
-{% endfor %}
+{% endif %}
 {% endblock %}

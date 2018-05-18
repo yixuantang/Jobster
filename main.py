@@ -63,40 +63,37 @@ def index():
 
 @app.route('/search')
 def search():
-    query = request.args.get('search')
+    query = request.args.get('query', '')
 
-    return render_template('pages/search.j2', title='Search')
+    if query:
+        students = search_student(query)
+        jobs = search_jobs(query)
+        company = search_company(query)# if current_user.type != 'company' else []
+    else:
+        students, company, jobs = [], [], []
+
+    print(students, company)
+    return render_template('pages/search.j2', students=students, jobs=jobs, companies=company, title='Search')
 
 ##### You can remove this once the messages query is working. it's just for creating fake messages
 from datetime import datetime, timedelta
 
 @app.route('/student/<user>')
 def student(user):
-    student_data =  stud(user) # get info for a student
-    following = listfollowers_user(student_data['sid'])
+    student_data = stud(user) # get info for a student
     friends = listfriends(student_data['sid'])
-<<<<<<< HEAD
-    applications = listapplications(student_data['sid'])
-    print(applications)
-    print(student_data)
-    print(student_data['sid'])
-    print(friends)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, applications=applications)
-=======
+    friend_ids = [f['sid'] for f in friends]
+    if student_data['privacysetting'] == 'friendly public' and (not current_user.is_authenticated or current_user.id in friend_ids):
+        return redirect(url_for('not_found_error'))
 
-    # messages = [
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='Hi', mdate=datetime.now() - timedelta(minutes=25), mstatus=1),
-    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='Hello', mdate=datetime.now() - timedelta(minutes=20), mstatus=1),
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='yo', mdate=datetime.now() - timedelta(minutes=15), mstatus=1),
-    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext="you're beautiful", mdate=datetime.now() - timedelta(minutes=10), mstatus=1),
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='thanks man', mdate=datetime.now() - timedelta(minutes=5), mstatus=1),
-    #     dict(sid1=student_data['sid'], sid2=current_user.id, mtext='poop', mdate=datetime.now() - timedelta(minutes=2), mstatus=1),
-    #     dict(sid1=current_user.id, sid2=student_data['sid'], mtext='lol', mdate=datetime.now() - timedelta(minutes=1), mstatus=1),
-    # ]
-    messages = getmessages(current_user.id, student_data['sid'])
-    print(messages)
-    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, messages=messages, title=student_data['sname'])
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
+    following = listfollowers_user(student_data['sid'])
+    applications = listapplications(student_data['sid'])
+    
+    messages = getmessages(current_user.id, student_data['sid']) if current_user.is_authenticated else None
+    friend_request = get_friend_request(current_user.id, student_data['sid']) if current_user.is_authenticated else None
+    return render_template('pages/student.j2', user=student_data, following=following, friends=friends, 
+        applications=applications, messages=messages, friend_request=friend_request, title=student_data['sname'])
+
 
 
 @app.route('/company/<user>')
@@ -105,31 +102,23 @@ def company(user):
     followers = listfollowers_company(user)
     jobs = comjobs(company_data['cid'])
     applications_com = listapplications_com(company_data['cid'])
-    print(company_data['cname'])
-    print('123')
-    print(user)
-<<<<<<< HEAD
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, applications_com = applications_com)
-=======
-    print(current_user.username)
-    return render_template('pages/company.j2', company=company_data, followers=followers, jobs=jobs, title=company_data['cname'])
+    im_following = is_following(current_user.id, company_data['cid']) if current_user.is_authenticated else None
+    return render_template('pages/company.j2', company=company_data, followers=followers, 
+        jobs=jobs, applications_com=applications_com, im_following=im_following, title=company_data['cname'])
 
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 
 @app.route('/job/<aid>', methods=['GET', 'POST'])
 def job(aid):
     job_data = selectjob(aid)
+    sent_application = has_applied(aid, current_user.id) if current_user.is_authenticated else None
+    print(sent_application)
     form = ApplicationForm(request.form)
     if request.method == 'POST' and form.validate() and current_user.is_authenticated:
         sendapplication(aid, current_user.id, form.email_phone.data)
-<<<<<<< HEAD
         return redirect(url_for('student', user=current_user.username))
     return render_template('pages/job.j2', job=job_data, aid=aid, form=form, title=job_data['title'])
-=======
-        return redirect(url_for('student_edit', user=current_user.username))
-    return render_template('pages/job.j2', job=thejob_data, aid=aid, form=form, title=job_data['title'])
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
+
 
 
 @app.route('/notifications')
@@ -187,9 +176,9 @@ def send_message(sid):
 
     if message:
         status = sendmessage(current_user.id, sid, message, timestamp)
-        sendmessage(sid, current_user.id, 'cool', datetime.now())
     return jsonify({
-        'success': status
+        'success': status,
+        'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S')
     })
 
 @app.route('/messages/<sid>/get')
@@ -248,10 +237,6 @@ def login():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-<<<<<<< HEAD
-        #user = User.from_form(form)
-=======
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
         if form.act_type.data == 'company':
             companyregister(form.name.data, form.password.data, form.username.data)
             user = User.from_form(form)
@@ -266,54 +251,28 @@ def register():
                 login_user(user)
                 print('logged in user', user.username)
                 return redirect(url_for('student', user=user.username))
-<<<<<<< HEAD
     return render_template('form/register.j2', form=form, title = 'Register')
 
 
-# @app.route('/student/<user>/update', methods=['GET', 'POST'])
-# @login_required
-# def student_update(user):
-#      # get info for a student
-#     form = UpdateForm(request.form)
-#     student_data = stud(user)
-#     if request.method == 'POST' and form.validate():
-#         print(current_user)
-#         print('122')
-#         updateprofile(form.phone.data, form.email.data, current_user)
-#         print(form.phone.data)
-#         print(form.email.data)
-#         print('123')
-#     return render_template('form/student_update.j2', form=form, user=student_data)
 
-@app.route('/updateprofile/<user>', methods=['GET', 'POST'])
-=======
-    return render_template('form/register.j2', form=form, title='Register')
-
-
-
-
-@app.route('/student/<user>/edit', methods=['GET', 'POST'])
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
+@app.route('/student/<user>/updateprofile', methods=['GET', 'POST'])
 @login_required
-def student_update(user):
+def student_edit(user):
     form = UpdateForm(request.form)
     student_data = stud(user) #use loginname
     print(current_user.id)
     if request.method == 'POST' and form.validate():
         print('123')
-        updateprofile(form.phone.data, form.email.data, current_user.id)
+        # phone,email,university,GPA,major,interests,qualification,sid
+        updateprofile(form.phone.data, form.email.data, form.university.data, form.GPA.data, form.major.data, 
+                        form.interest.data, form.qualifications.data, form.privacysetting.data, current_user.id)
         print(current_user.id)
         print(form.email.data)
-<<<<<<< HEAD
-    return render_template('form/student_update.j2', form=form, user=student_data)
-=======
-        print('123')
-    return render_template('form/Updateprofile.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
+    return render_template('form/student_update.j2', form=form, user=student_data, title='{}|Update Profile'.format(student_data['sname']))
 
->>>>>>> 5252f7da75103e06be90fd0d84ce52188fa24f38
 
 #func: updateprofile_com
-@app.route('/updateprofile_com/<user>', methods=['GET', 'POST'])
+@app.route('/company/<user>/updateprofile', methods=['GET', 'POST'])
 @login_required
 def company_edit(user):
     form = UpdateForm_com(request.form)
@@ -375,17 +334,7 @@ def not_found_error(error):
 
 
 
-# def postjob():
-#     form = PostJob(request.form)
-#     # company_data = com_from_id(user) # get info for a student
-#     if request.method == 'POST' and form.validate():
-#         print(current_user)
-#         print('122')
-#         postjobs(form.phone.data, form.email.data, current_user)
-#         print(form.phone.data)
-#         print(form.email.data)
-#         print('123')
-#     return render_template('form/Updateprofile.j2', form=form, user=company_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

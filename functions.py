@@ -6,11 +6,11 @@ from datetime import datetime
 generate_id = lambda prefix: '{}{}'.format(prefix, int(time.time()) % 10000)
 
 #connection
-cnx = mysql.connector.connect(user='root', passwd='new_password',
-                              host='localhost',port='3306',db='love1',autocommit=True)
+cnx = mysql.connector.connect(user='root', passwd='root',
+                              host='localhost',port='3306',db='love',autocommit=True)
 from mysql.connector.cursor import MySQLCursorPrepared
 cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
-cur = cnx.cursor(dictionary=True)
+cur = cnx.cursor(dictionary=True, buffered=True)
 
 """
 functions
@@ -198,10 +198,10 @@ def studentinfo(sid, sname, loginname, phone, email, university, major, GPA, int
 #         pass
 
 #lol lol
-def updateprofile(phone,email,university,GPA,major,interests,qualification,sid):
+def updateprofile(phone,email,university,GPA,major,interests,qualification,privacysetting,sid):
     try:
         cursor = cnx.cursor(cursor_class= MySQLCursorPrepared)
-        cursor.execute("UPDATE Student set phone = %s, email = %s, university = %s, GPA =%s, major=%s, interests = %s,qualifications = %s where sid = %s;", (phone, email,university,GPA,major,interests,qualification, sid),multi=True)
+        cursor.execute("UPDATE Student set phone = %s, email = %s, university = %s, GPA =%s, major=%s, interests = %s,qualifications = %s, privacysetting = %s where sid = %s;", (phone, email,university,GPA,major,interests,qualification,privacysetting, sid),multi=True)
         cursor.execute("commit;")
         print(phone)
         return True
@@ -226,7 +226,7 @@ def listfollowers_user(sid):
 #list applications
 def listapplications(sid):
     try:
-        cur.execute("""select p.aid, p.title, a.astatus from application a join position p where p.aid = a.aid and a.sid = %s;""", (sid,))
+        cur.execute("""select p.aid, p.title, p.salary, a.astatus, c.cname, c.location, c.cid from application a join position p join company c where p.aid = a.aid and p.cid = c.cid and a.sid = %s;""", (sid,))
         return(cur.fetchall())
     finally:
         pass
@@ -302,7 +302,7 @@ def follow_com(cid, sid):
 
 def send_friend_request(sid_send, sid_receive):
     try:
-        cur.execute("INSERT IGNORE INTO Request (sid,Friendid,rdate) VALUES (%s,%s,%s);", (sid_send, sid_receive, datetime.now()))
+        cur.execute("INSERT INTO Request (sid,Friendid,status,rdate) VALUES (%s,%s,%s,%s);", (sid_send, sid_receive, 'pending', datetime.now()))
         cur.execute("COMMIT;")
         return True
     finally:
@@ -311,7 +311,7 @@ def send_friend_request(sid_send, sid_receive):
 
 def accept_friend_request(sid_receive, sid_send):
     try:
-        cur.execute("UPDATE Request SET nstatus = '1' WHERE aid = %s AND sid = %s;", (sid_receive, sid_send))
+        cur.execute("UPDATE Request SET nstatus = '1' WHERE sid = %s AND Friendid = %s;", (sid_receive, sid_send))
         cur.execute("COMMIT;")
         return True
     finally:
@@ -327,7 +327,79 @@ def reject_friend_request(sid_receive, sid_send):
         return False
 
 
-def search_results(query):
+
+
+
+
+def sendmessage(sid1, sid2, mtext, mdate):
+    try:
+        cur.execute( "INSERT INTO Message(sid1, sid2, mtext, mdate) VALUES (%s, %s, %s, %s);",(sid1, sid2, mtext, mdate))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        pass
+    return False
+
+def markreadmessage(sid1, sid2, mdate, mstatus=1):
+    try:
+        cur.execute( "set sql_safe_updates = 0; UPDATE Message set mstatus = %s where mdate = %s and sid1 = %s, sid2 = %s;",(mstatus, mdate, sid1, sid2))
+        cur.execute("COMMIT;")
+        return True
+    finally:
+        pass
+    return False
+
+def getmessages(sid1, sid2):
+    cur.execute( """select * from Message where 
+        (sid1 = %s and sid2 = %s) or (sid1 = %s and sid2 = %s)
+        order by mdate asc;""",(sid1, sid2, sid2, sid1))
+    return(cur.fetchall())
+
+def getnewmessages(sid1, sid2, mdate):
+    cur.execute( """select * from Message where 
+        sid1 = %s and sid2 = %s and mdate > %s
+        order by mdate asc;""",(sid1, sid2, mdate))
+    return(cur.fetchall())
+
+
+
+
+
+def get_friend_request(sid1, sid2):
+    cur.execute( """select * from Request where 
+        sid = %s and Friendid = %s;""",(sid1, sid2))
+    return(cur.fetchone())
+
+def is_following(sid, cid):
+    cur.execute( """select * from Follower where 
+        sid = %s and cid = %s;""",(sid, cid))
+    return(cur.fetchone())
+
+def has_applied(aid, sid):
+    cur.execute( """select * from Application where 
+        aid = %s and sid = %s;""",(aid, sid))
+    return(cur.fetchone())
+
+
+
+def search_company(keyword):
+    kw_like = '%' + keyword + '%'
+    cur.execute("select * from Company c where (c.cname like %s or c.location like %s or c.industry like %s);", (kw_like, kw_like, kw_like))
+    return(cur.fetchall())
+
+def search_jobs(keyword):
+    kw_like = '%' + keyword + '%'
+    cur.execute("select  p.aid, c.cname, p.title, p.description from Company c join position p  where p.cid = c.cid and (p.title like %s or c.cname like %s  or p.description like %s);", (kw_like, kw_like, kw_like))
+    return(cur.fetchall())
+
+def search_student(keyword):
+    kw_like = '%' + keyword + '%'
+    cur.execute("select s.sname, s.sid from Student s where (s.sname like %s or s.interests like %s  or s.qualifications like %s or s.major like %s or s.university like %s);", (kw_like, kw_like, kw_like, kw_like, kw_like))
+    return(cur.fetchall())
+
+
+
+# def search_results(query):
 #     cur.execute("""SELECT * from (
 #   SELECT
 #     'student' as type, loginname as slug, sname as name, university, major, (MATCH(content) AGAINST (@target)) as relevance
@@ -345,5 +417,5 @@ def search_results(query):
 # )
 # as sitewide WHERE relevance > 0;
 # """)
-    return(cur.fetchall())
+    # return(cur.fetchall())
 

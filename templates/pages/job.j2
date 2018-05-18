@@ -17,7 +17,7 @@
                 {{ form.email_phone(placeholder='Contact via') }}
             </div>
             <div class="6u">
-                {{ form.submit() }}
+                {{ form.submit(class_=('special' if sent_application else ''), value=('Applied!' if sent_application else 'Apply')) }}
             </div>
         </div>
     </form>
